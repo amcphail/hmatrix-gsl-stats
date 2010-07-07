@@ -1,5 +1,5 @@
 Name:               hmatrix-gsl-stats
-Version:            0.1.1.6
+Version:            0.1.2.2
 License:            GPL
 License-file:       LICENSE
 Copyright:          (c) A.V.H. McPhail 2010
@@ -8,7 +8,13 @@ Maintainer:         haskell.vivian.mcphail <at> gmail <dot> com
 Stability:          provisional
 Homepage:           http://code.haskell.org/hmatrix-gsl-stats
 Synopsis:           GSL Statistics interface
-Description:        Purely functional interface for statistics based on hmatrix and GSL
+Description:        
+     Purely functional interface for statistics based on hmatrix and GSL
+     .
+     Relieves the burden of alloc/free routines and is otherwise essentially 1:1
+     .
+     Documentation can be found at <http://www.gnu.org/software/gsl/manual/>
+
 Category:           Math, Statistics
 tested-with:        GHC ==6.12.1
 
