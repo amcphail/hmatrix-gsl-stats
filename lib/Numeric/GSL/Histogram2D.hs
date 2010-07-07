@@ -20,7 +20,7 @@ module Numeric.GSL.Histogram2D (
                                , emptyRanges, emptyLimits
                                , fromRanges, fromLimits
                                , addList, addVector, addListWeighted, addVectorWeighted
-                               , toMatrix
+                               , toMatrix, fromMatrix
                                , getBin, getXRange, getYRange
                                , getXMax, getYMax, getXMin, getYMin, getXBins, getYBins
                                , reset
@@ -192,13 +192,13 @@ toMatrix (H bx by h) = unsafePerformIO $ do
 foreign import ccall "histogram-aux.h to_matrix" histogram_to_matrix :: Hist2DHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> CInt -> Ptr Double -> IO CInt
 
 -----------------------------------------------------------------------------
-
+{-
 vectorToTuples = toTuples . toList
     where toTuples []         = error "need a minimum of two elements"
           toTuples [_]        = error "need a minimum of two elements"
           toTuples [x1,x2]    = [(x1,x2)]
           toTuples (x1:x2:xs) = (x1,x2) : (toTuples (x2:xs))
-
+-}
 -----------------------------------------------------------------------------
 
 -- | create from ranges and bins
@@ -206,11 +206,12 @@ fromMatrix :: Vector Double            -- ^ x ranges
            -> Vector Double            -- ^ y ranges
            -> Matrix Double            -- ^ bins
            -> Histogram2D              -- ^result
-fromMatrix x y w = let x' = map (\(x1,x2) -> (x1 + x2)/2) $ vectorToTuples x
-                       y' = map (\(x1,x2) -> (x1 + x2)/2) $ vectorToTuples y
-                       w' = toList $ flatten w
-                       xy = concat $ map (\j -> zip x' (replicate (length x') j)) y'
-                       in addListWeighted (emptyRanges x y) $ zipWith (\(a,b) d -> (a,b,d)) xy w'
+fromMatrix x y w = unsafePerformIO $ do
+                   h@(H _ _ h') <- fromRangesIO x y
+                   app3 (\xs x' ys y' rs cs b -> withForeignPtr h' $ \h'' -> histogram_from_matrix h'' xs x' ys y' rs cs b) vec x vec y mat w "fromMatrix"
+                   return h
+
+foreign import ccall "histogram-aux.h from_matrix" histogram_from_matrix :: Hist2DHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> CInt -> Ptr Double -> IO CInt
 
 -----------------------------------------------------------------------------
 

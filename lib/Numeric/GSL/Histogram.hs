@@ -20,7 +20,7 @@ module Numeric.GSL.Histogram (
                              , emptyRanges, emptyLimits
                              , fromRanges, fromLimits
                              , addList, addVector, addListWeighted, addVectorWeighted
-                             , toVectors
+                             , toVectors, fromVectors
                              , getBin, getRange
                              , getMax, getMin, getBins
                              , find 
@@ -97,14 +97,6 @@ instance Fractional Histogram where
 -}
 -----------------------------------------------------------------------------
 
-vectorToTuples = toTuples . toList
-    where toTuples []         = error "need a minimum of two elements"
-          toTuples [_]        = error "need a minimum of two elements"
-          toTuples [x1,x2]    = [(x1,x2)]
-          toTuples (x1:x2:xs) = (x1,x2) : (toTuples (x2:xs))
-
------------------------------------------------------------------------------
-
 instance Binary Histogram where
     put h = do
             let (b,c) = toVectors h
@@ -113,8 +105,7 @@ instance Binary Histogram where
     get = do
           b <- get
           c <- get
-          return $! addVectorWeighted (emptyRanges b) (middle b) c
-        where middle = fromList . map (\(x1,x2) -> (x1 + x2)/2) . vectorToTuples
+          return $! fromVectors b c
 
 -----------------------------------------------------------------------------
 
@@ -176,8 +167,27 @@ fromLimits n r d = unsafePerformIO $ do
                    return h
 
 -----------------------------------------------------------------------------
+{-
+vectorToTuples = toTuples . toList
+    where toTuples []         = error "need a minimum of two elements"
+          toTuples [_]        = error "need a minimum of two elements"
+          toTuples [x1,x2]    = [(x1,x2)]
+          toTuples (x1:x2:xs) = (x1,x2) : (toTuples (x2:xs))
 
--- | extract the ranges and bins
+middle = fromList . map (\(x1,x2) -> (x1 + x2)/2) . vectorToTuples
+-}
+-----------------------------------------------------------------------------
+
+-- | create a histogram from the ranges and bin weights
+fromVectors :: Vector Double -> Vector Double -> Histogram
+fromVectors r b = unsafePerformIO $ do
+                  h@(H _ h') <- fromRangesIO r
+                  app2 (\rs r' bs b' -> withForeignPtr h' $ \h'' -> histogram_from_vectors h'' rs r' bs b') vec r vec b "fromVectors"
+                  return h
+                  
+foreign import ccall "gsl-histogram.h from_vectors" histogram_from_vectors :: HistHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
+
+-- | extract the ranges and bin weights
 toVectors :: Histogram -> (Vector Double,Vector Double) -- ^ (ranges,bins)
 toVectors (H b h) = unsafePerformIO $ do
                     rs <- createVector (b+1)

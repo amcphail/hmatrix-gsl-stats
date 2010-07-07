@@ -6,6 +6,14 @@
 
 #include <stdio.h>
 
+int from_vectors(gsl_histogram * H, int rs, const double* r, int bs, const double* b)
+{
+  if (rs != bs + 1) return 2000; // BAD_SIZE
+  int i;
+  for (i = 0; i < rs - 1; i++)
+    gsl_histogram_accumulate(H,(r[i]+r[i+1])/2,b[i]);
+  return 0;
+}
 
 int to_vectors(gsl_histogram * H, int rs, double* r, int bs, double* b)
 {
@@ -75,6 +83,18 @@ int hist_fscanf(const char* filename, gsl_histogram* h)
 }
 
 //////////////////////
+
+int from_matrix(gsl_histogram2d * H, int rxs, const double* rx, int rys, const double* ry, int bx, int by, const double* b)
+{
+  if (rxs != bx + 1) return 2000; // BAD_SIZE
+  if (rys != by + 1) return 2000; // BAD_SIZE
+
+  int i, j;
+  for (i = 0; i < rxs - 1; i++)
+    for (j = 0; j <rys - 1; j++)
+      gsl_histogram2d_accumulate(H,(rx[i]+rx[i+1])/2,(ry[j]+ry[j+1])/2,b[i*by+j]);
+  return 0;
+}
 
 int to_matrix(gsl_histogram2d * H, int rxs, double* rx, int rys, double* ry, int bx, int by, double* b)
 {

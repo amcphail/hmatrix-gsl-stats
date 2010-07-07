@@ -27,4 +27,4 @@
 
 0.1.2.2:
 		removed warning causes in Distribution.Discrete/Continuous
-		
+		added fromVectors, modified fromMatrix in Histogram(2D)		
