@@ -207,7 +207,7 @@ density_3p :: ThreeParamDist   -- ^ density type
                 -> Double         -- ^ parameter 3
                 -> Double         -- ^ value
                 -> Double         -- ^ result
-density_3p d f p1 p2 p3 x = unsafePerformIO $ do
+density_3p d _ _ _ _ _ = unsafePerformIO $ do
                             case d of
                                  LevySkew -> error "Levy skew has no PDF or CDF"
                                  _        -> error "unknown 3 parameter distribution"
