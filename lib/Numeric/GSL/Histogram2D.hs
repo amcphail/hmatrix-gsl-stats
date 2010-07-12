@@ -16,22 +16,30 @@
 -----------------------------------------------------------------------------
 
 module Numeric.GSL.Histogram2D (
+                               -- * Creation
                                 Histogram2D
                                , emptyRanges, emptyLimits
                                , fromRanges, fromLimits
+                               -- * Loading
                                , addList, addVector, addListWeighted, addVectorWeighted
+                               -- * Marshalling
                                , toMatrix, fromMatrix
+                               -- * Information
                                , getBin, getXRange, getYRange
                                , getXMax, getYMax, getXMin, getYMin, getXBins, getYBins
                                , reset
+                               -- * Querying
                                , find
-                               , count, prob
+                               , count, prob, probPaired, countPaired, countInstance, probability
                                , maxVal, maxBin, minVal, minBin
+                               -- * Statistics
                                , xmean, ymean, xstddev, ystddev, covariance, sum
                                , equalBins
+                               -- * Mathematics
                                , add, subtract, multiply, divide, shift, scale
+                               -- * Files     
                                , fwriteHistogram2D, freadHistogram2D, fprintfHistogram2D, fscanfHistogram2D
-                               --
+                               -- * PDF
                                , Histogram2DPDF
                                , fromHistogram2D
                                , sample
@@ -43,7 +51,8 @@ import Data.Packed.Vector
 import Data.Packed.Matrix
 import Data.Packed.Development
 
-import Numeric.LinearAlgebra.Algorithms hiding(add,multiply,divide,scale)
+import Numeric.LinearAlgebra.Algorithms hiding (multiply)
+import Numeric.LinearAlgebra.Linear hiding (add,divide,scale)
 import Numeric.LinearAlgebra.Interface()
 
 --import Control.Monad
@@ -52,6 +61,8 @@ import Numeric.LinearAlgebra.Interface()
 import Data.Binary
 
 import Foreign hiding(shift)
+--import Foreign.Storable
+--import Foreign.Ptr
 --import Foreign.ForeignPtr
 --import Foreign.Marshal.Alloc(alloca)
 import Foreign.C.Types(CInt,CChar)
@@ -64,6 +75,19 @@ import Foreign.C.String(newCString)
 --import GHC.IOBase
 
 import Prelude hiding(subtract,sum)
+
+-----------------------------------------------------------------------------
+
+instance (Storable a) => Storable (a,a) where
+    sizeOf z        = 2 * sizeOf (fst z)
+    alignment z     = alignment (fst z)
+    peek p          = do let q = castPtr p
+                         a <- peek q
+                         b <- peekElemOff q 1
+                         return (a,b)
+    poke p (a,b) = do let q = (castPtr p)
+                      poke q a
+                      pokeElemOff q 1 b
 
 -----------------------------------------------------------------------------
 
@@ -375,6 +399,14 @@ find (H _ _ h) (x,y) = unsafePerformIO $ do
 
 foreign import ccall "gsl-histogram2d.h gsl_histogram2d_find" histogram2d_find :: Hist2DHandle -> Double -> Double -> Ptr CInt -> Ptr CInt -> IO CInt
 
+-- | find the number of occurences for the input
+countInstance :: Histogram2D -> (Double,Double) -> Double
+countInstance h x = let Just x' = find h x in getBin h x'
+
+-- | find the probability of the input
+probability :: Histogram2D -> (Double,Double) -> Double
+probability h x = let Just x' = find h x in (getBin h x') / (sum h)
+
 -- | find the number of occurences for each element of the input vector
 count :: Histogram2D -> (Vector Double, Vector Double) -> Vector Double
 count (H _ _ h) (x,y) = unsafePerformIO $ do
@@ -387,6 +419,19 @@ foreign import ccall "histogram-aux.h hist2d_count" histogram2d_count :: Hist2DH
 -- | find the joint probability of occuring for each element of the input vector pair
 prob :: Histogram2D -> (Vector Double,Vector Double) -> Vector Double
 prob h z = (count h z) / (scalar $ sum h)
+
+-- | find the number of occurences for each element of the input vector
+countPaired :: Histogram2D -> Vector (Double,Double) -> Vector Double
+countPaired (H _ _ h) x = unsafePerformIO $ do
+               r <- createVector $ dim x
+               app2 (\xs' x' rs' r' -> withForeignPtr h $ \h' -> histogram2d_count_pair h' xs' x' rs' r') vec x vec r "histogram2d_count_pair"
+               return r
+
+foreign import ccall "histogram-aux.h hist2d_count_pair" histogram2d_count_pair :: Hist2DHandle -> CInt -> Ptr (Double,Double) -> CInt -> Ptr Double -> IO CInt
+
+-- | find the joint probability of occuring for each element of the input vector pair
+probPaired :: Histogram2D -> (Vector (Double,Double)) -> Vector Double
+probPaired h z = (countPaired h z) / (scalar $ sum h)
 
 -----------------------------------------------------------------------------
 
@@ -600,4 +645,15 @@ foreign import ccall "gsl-histogram2d.h gsl_histogram2d_pdf_sample" histogram2d_
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+{-
+unzipPair :: Vector (Double,Double) -> (Vector Double,Vector Double)
+unzipPair v = unsafePerformIO $ do
+              a <- createVector $ dim v
+              b <- createVector $ dim v
+              app3 histogram2d_unzip_double_pair vec v vec a vec b "unzipPair"
+              return (a,b)
+
+foreign import ccall "histogram-aux.h unzip_double_pair" histogram2d_unzip_double_pair :: CInt -> Ptr (Double,Double) -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
+-}
 -----------------------------------------------------------------------------

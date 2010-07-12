@@ -16,21 +16,29 @@
 -----------------------------------------------------------------------------
 
 module Numeric.GSL.Histogram (
+                             -- * Creation
                               Histogram
                              , emptyRanges, emptyLimits
                              , fromRanges, fromLimits
+                             -- * Loading
                              , addList, addVector, addListWeighted, addVectorWeighted
+                             -- * Marshalling
                              , toVectors, fromVectors
+                             -- * Information
                              , getBin, getRange
                              , getMax, getMin, getBins
+                             -- * Querying
                              , find 
-                             , count, prob
+                             , count, prob, countInstance, probability
                              , maxVal, maxBin, minVal, minBin
+                             -- * Statistics
                              , mean, stddev, sum
                              , equalBins
+                             -- * Mathematics
                              , add, subtract, multiply, divide, shift, scale
+                             -- * Files     
                              , fwriteHistogram, freadHistogram, fprintfHistogram, fscanfHistogram
-                             --
+                             -- * PDF
                              , HistogramPDF
                              , fromHistogram
                              , sample
@@ -42,8 +50,8 @@ import Data.Packed.Vector
 --import Data.Packed.Matrix hiding(toLists)
 import Data.Packed.Development
 
---import Numeric.LinearAlgebra.Linear
-import Numeric.LinearAlgebra.Algorithms hiding(add,multiply,divide,scale)
+import Numeric.LinearAlgebra.Algorithms hiding (multiply)
+import Numeric.LinearAlgebra.Linear hiding (add,divide,scale)
 import Numeric.LinearAlgebra.Interface()
 
 --import Control.Monad
@@ -325,6 +333,14 @@ find (H _ h) x = unsafePerformIO $ do
                      else return Nothing
 
 foreign import ccall "gsl-histogram.h gsl_histogram_find" histogram_find :: HistHandle -> Double -> Ptr CInt -> IO CInt
+
+-- | find the number of occurences for the input
+countInstance :: Histogram -> Double -> Double
+countInstance h x = let Just x' = find h x in getBin h x'
+
+-- | find the probability of the input
+probability :: Histogram -> Double -> Double
+probability h x = let Just x' = find h x in (getBin h x') / (sum h)
 
 -- | find the number of occurences for each element of the input vector
 count :: Histogram -> Vector Double -> Vector Double

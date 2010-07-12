@@ -28,3 +28,11 @@
 0.1.2.2:
 		removed warning causes in Distribution.Discrete/Continuous
 		added fromVectors, modified fromMatrix in Histogram(2D)		
+		added countInstance, probability to Histogram(2D)
+		added probPair to Histogram2D
+
+0.1.2.3:
+		fixed imports to reflect changes in hmatrix
+
+0.1.2.4:
+		

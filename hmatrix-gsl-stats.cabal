@@ -1,5 +1,5 @@
 Name:               hmatrix-gsl-stats
-Version:            0.1.2.2
+Version:            0.1.2.4
 License:            GPL
 License-file:       LICENSE
 Copyright:          (c) A.V.H. McPhail 2010
@@ -14,7 +14,9 @@ Description:
      Relieves the burden of alloc/free routines and is otherwise essentially 1:1
      .
      Documentation can be found at <http://www.gnu.org/software/gsl/manual/>
-
+     .
+     When hmatrix is installed with -fvector, the vector type is Data.Vector.Storable
+     from the vector package.
 Category:           Math, Statistics
 tested-with:        GHC ==6.12.1
 

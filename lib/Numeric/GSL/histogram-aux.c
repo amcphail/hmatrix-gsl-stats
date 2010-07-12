@@ -146,6 +146,22 @@ int hist2d_count(gsl_histogram2d* H, int xs, const double* x, int ys, const doub
   return 0;
 }
       
+int hist2d_count_pair(gsl_histogram2d* H, int xs, const double* x, int rs, double* res)
+{
+  if (xs != rs) return 2000; // BAD_SIZE
+  int i;
+  size_t r,c;
+  int err;
+
+  for (i = 0; i < xs; i++) {
+    err = gsl_histogram2d_find(H,x[i*2],x[i*2+1],&r,&c);
+    if (err != 0) return 0;
+    else { res[i] = gsl_histogram2d_get(H,r,c); }
+  }
+
+  return 0;
+}
+      
 int hist2d_fwrite(const char* filename, const gsl_histogram2d* h)
 {
   int err;
@@ -186,3 +202,17 @@ int hist2d_fscanf(const char* filename, gsl_histogram2d* h)
   return err;
 }
 
+///////////////////////////////////////////////////////////////
+
+int unzip_double_pair(int vs, const double* v, int as, double* a, int bs, double* b)
+{
+  if (vs != as || vs != bs) return 2000; // BAD_SIZE
+
+  int i;
+  for (i = 0; i < vs; i++) {
+    a[i] = v[i*2];
+    b[i] = v[i*2+1];
+  }
+
+  return 0;
+}
