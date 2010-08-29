@@ -50,8 +50,8 @@ import Data.Packed.Vector
 --import Data.Packed.Matrix hiding(toLists)
 import Data.Packed.Development
 
-import Numeric.LinearAlgebra.Algorithms hiding (multiply)
-import Numeric.LinearAlgebra.Linear hiding (add,divide,scale)
+--import Numeric.LinearAlgebra.Algorithms hiding (multiply)
+import Numeric.LinearAlgebra.Linear hiding (multiply,add,divide,scale)
 import Numeric.LinearAlgebra.Interface()
 
 --import Control.Monad
