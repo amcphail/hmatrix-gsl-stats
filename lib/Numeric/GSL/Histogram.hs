@@ -52,7 +52,7 @@ import Data.Packed.Development
 
 --import Numeric.LinearAlgebra.Algorithms hiding (multiply)
 --import Numeric.LinearAlgebra.Linear hiding (multiply,add,divide,scale)
-import Numeric.Vector hiding (multiply,add,divide,scale)
+import Numeric.Container hiding (multiply,add,divide,scale)
 
 --import Control.Monad
 import Data.Binary

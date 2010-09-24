@@ -54,8 +54,8 @@ import Data.Packed()
 
 --import Numeric.LinearAlgebra.Algorithms hiding (multiply)
 --import Numeric.LinearAlgebra.Linear hiding (multiply,add,divide,scale)
---import Numeric.LinearAlgebra.Interface()
-import Numeric.Vector hiding (multiply,add,divide,scale)
+import Numeric.LinearAlgebra hiding (multiply,add,divide,scale)
+--import Numeric.Container 
 
 --import Control.Monad
 --import Control.Monad(when)
