@@ -35,7 +35,7 @@ library
 
     Build-Depends:      base >= 3 && < 5, binary,
                         storable-complex,
-                        hmatrix >= 0.10.0
+                        hmatrix >= 0.10.0.0
 			
     Extensions:         ForeignFunctionInterface
 
@@ -84,7 +84,7 @@ library
     extra-libraries:
     extra-lib-dirs:
 
-    source-repository head
-        type:     darcs
-        location: darcs get http://code.haskell.org/hmatrix-gsl-stats
+source-repository head
+    type:     darcs
+    location: http://code.haskell.org/hmatrix-gsl-stats
 
