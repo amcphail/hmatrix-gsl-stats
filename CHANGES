@@ -43,3 +43,5 @@
 0.1.2.6:
 		hmatrix-0.10.0.0 release
 
+0.1.2.7:
+		changed import from Numeric.Container to Numeric.LinearAlgebra in Histogram.hs (strange)
