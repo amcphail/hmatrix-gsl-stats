@@ -20,7 +20,7 @@ Description:
 Category:           Math, Statistics, FFI
 tested-with:        GHC ==6.12.1
 
-cabal-version:      >=1.2
+cabal-version:      >=1.6
 
 build-type:         Custom
 
