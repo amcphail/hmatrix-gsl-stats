@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# LANGUAGE EmptyDataDecls #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Permutation

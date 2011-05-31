@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# LANGUAGE EmptyDataDecls,
+             FlexibleInstances #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Histogram2D
@@ -54,7 +55,7 @@ import Data.Packed()
 
 --import Numeric.LinearAlgebra.Algorithms hiding (multiply)
 --import Numeric.LinearAlgebra.Linear hiding (multiply,add,divide,scale)
-import Numeric.LinearAlgebra hiding (multiply,add,divide,scale)
+import Numeric.LinearAlgebra hiding (multiply,add,divide,scale,find)
 --import Numeric.Container 
 
 --import Control.Monad

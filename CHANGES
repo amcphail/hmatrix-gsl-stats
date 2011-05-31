@@ -45,3 +45,9 @@
 
 0.1.2.7:
 		changed import from Numeric.Container to Numeric.LinearAlgebra in Histogram.hs (strange)
+
+0.1.2.8:
+		changed base to >= 4
+
+0.1.2.10:
+		hmatrix now has find, fix Histogram(2D)

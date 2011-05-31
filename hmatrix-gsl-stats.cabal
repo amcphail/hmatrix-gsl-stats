@@ -1,8 +1,8 @@
 Name:               hmatrix-gsl-stats
-Version:            0.1.2.7
+Version:            0.1.2.10
 License:            GPL
 License-file:       LICENSE
-Copyright:          (c) A.V.H. McPhail 2010
+Copyright:          (c) A.V.H. McPhail 2010, 2011
 Author:             Vivian McPhail
 Maintainer:         haskell.vivian.mcphail <at> gmail <dot> com
 Stability:          provisional
@@ -18,13 +18,13 @@ Description:
      When hmatrix is installed with -fvector, the vector type is Data.Vector.Storable
      from the vector package.
 Category:           Math, Statistics, FFI
-tested-with:        GHC ==6.12.1
+tested-with:        GHC ==7.0.1
 
-cabal-version:      >=1.6
+cabal-version:      >=1.10.1.0
 
 build-type:         Custom
 
-extra-source-files: configure configure.hs README INSTALL CHANGES
+extra-source-files: Config.hs README INSTALL CHANGES
 extra-tmp-files:    hmatrix-gsl-stats.buildinfo
 
 flag mkl
@@ -33,11 +33,13 @@ flag mkl
 
 library
 
-    Build-Depends:      base >= 3 && < 5, binary,
+    Default-language:   Haskell2010
+
+    Build-Depends:      base >= 4 && < 5, binary,
                         storable-complex,
-                        hmatrix >= 0.10.0.0
+                        hmatrix >= 0.11.0.4
 			
-    Extensions:         ForeignFunctionInterface
+    Default-Extensions: ForeignFunctionInterface
 
     hs-source-dirs:     lib
     Exposed-modules:    Numeric.GSL.Sort
