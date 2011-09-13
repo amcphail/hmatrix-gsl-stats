@@ -60,16 +60,16 @@ type PD = Ptr Double
 -----------------------------------------------------------------------------
 
 getD1 f s v = unsafePerformIO $ do
-              alloca $ \r -> do
+                alloca $ \r -> do
                    app1 (f r) vec v s
                    r' <- peek r
                    return r'
 
 getD2 f s v w = unsafePerformIO $ do
-                alloca $ \r -> do
-                app2 (f r) vec v vec w s
-                r' <- peek r
-                return r'
+                   alloca $ \r -> do
+                      app2 (f r) vec v vec w s
+                      r' <- peek r
+                      return r'
 
 -----------------------------------------------------------------------------
 
