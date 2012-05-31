@@ -1,5 +1,5 @@
 Name:               hmatrix-gsl-stats
-Version:            0.1.2.11
+Version:            0.1.2.12
 License:            GPL
 License-file:       LICENSE
 Copyright:          (c) A.V.H. McPhail 2010, 2011
@@ -18,7 +18,7 @@ Description:
      When hmatrix is installed with -fvector, the vector type is Data.Vector.Storable
      from the vector package.
 Category:           Math, Statistics, FFI
-tested-with:        GHC ==7.0.1
+tested-with:        GHC ==7.4.1
 
 cabal-version:      >=1.10.1.0
 
@@ -87,6 +87,6 @@ library
     extra-lib-dirs:
 
 source-repository head
-    type:     darcs
-    location: http://code.haskell.org/hmatrix-gsl-stats
+    type:     git
+    location: git@github.com:amcphail/hmatrix-gsl-stats.git
 
