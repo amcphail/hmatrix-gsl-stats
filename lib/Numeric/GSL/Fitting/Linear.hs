@@ -128,13 +128,14 @@ multifit :: Matrix Double          -- ^ design matrix (X)
          -> Vector Double          -- ^ observations
          -> (Vector Double,Matrix Double,Double)   -- ^ (coefficients,covariance,chi_sq)
 multifit x y = unsafePerformIO $ do
-               let ys = dim y 
-               cov <- createMatrix RowMajor ys ys 
-               p <- createVector ys 
+               let n = dim y
+                   p = cols x
+               cov <- createMatrix RowMajor p p
+               c <- createVector p
                alloca$ \chi_sq -> do
-                   app4 (fitting_multifit chi_sq) mat x vec y vec p mat cov "multifit"
+                   app4 (fitting_multifit chi_sq) mat x vec y vec c mat cov "multifit"
                    chi_sq' <- peek chi_sq
-                   return (p,cov,chi_sq')
+                   return (c,cov,chi_sq')
 
 -----------------------------------------------------------------------------
 
@@ -148,13 +149,14 @@ multifit_w :: Matrix Double          -- ^ design matrix (X)
            -> Vector Double          -- ^ observations
            -> (Vector Double,Matrix Double,Double)   -- ^ (coefficients,covariance,chi_sq)
 multifit_w x w y = unsafePerformIO $ do
-                   let ys = dim y 
-                   cov <- createMatrix RowMajor ys ys 
-                   p <- createVector ys 
+                   let n = dim y
+                       p = cols x
+                   cov <- createMatrix RowMajor p p
+                   c <- createVector p
                    alloca$ \chi_sq -> do
-                       app5 (fitting_multifit_w chi_sq) mat x vec w vec y vec p mat cov "multifit"
+                       app5 (fitting_multifit_w chi_sq) mat x vec w vec y vec c mat cov "multifit"
                        chi_sq' <- peek chi_sq
-                       return (p,cov,chi_sq')
+                       return (c,cov,chi_sq')
 
 -----------------------------------------------------------------------------
 
