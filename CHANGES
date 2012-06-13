@@ -54,3 +54,6 @@
 
 0.1.2.11:
 		fixed indentation that prevented compilation with ghc-7.2
+
+0.1.3:
+		Joachim Fasting fixed Numeric.GSL.Fitting.Linear.multifit
