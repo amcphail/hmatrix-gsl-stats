@@ -128,8 +128,7 @@ multifit :: Matrix Double          -- ^ design matrix (X)
          -> Vector Double          -- ^ observations
          -> (Vector Double,Matrix Double,Double)   -- ^ (coefficients,covariance,chi_sq)
 multifit x y = unsafePerformIO $ do
-               let n = dim y
-                   p = cols x
+               let p = cols x
                cov <- createMatrix RowMajor p p
                c <- createVector p
                alloca$ \chi_sq -> do
@@ -149,8 +148,7 @@ multifit_w :: Matrix Double          -- ^ design matrix (X)
            -> Vector Double          -- ^ observations
            -> (Vector Double,Matrix Double,Double)   -- ^ (coefficients,covariance,chi_sq)
 multifit_w x w y = unsafePerformIO $ do
-                   let n = dim y
-                       p = cols x
+                   let p = cols x
                    cov <- createMatrix RowMajor p p
                    c <- createVector p
                    alloca$ \chi_sq -> do
