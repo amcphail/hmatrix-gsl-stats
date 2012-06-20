@@ -41,10 +41,10 @@ import Data.Packed.Development
 
 --import Control.Monad(when)
 
-import Foreign hiding(shift)
+import Foreign hiding(shift,unsafePerformIO)
 --import Foreign.ForeignPtr
 --import Foreign.Marshal.Alloc(alloca)
-import Foreign.C.Types(CInt,CChar)
+import Foreign.C.Types(CInt(..),CChar(..))
 --import Foreign.C.String(newCString,peekCString)
 import Foreign.C.String(newCString)
 
@@ -54,6 +54,8 @@ import Foreign.C.String(newCString)
 --import GHC.IOBase
 
 import Prelude hiding(reverse)
+
+import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 

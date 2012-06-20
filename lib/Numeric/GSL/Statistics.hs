@@ -49,9 +49,11 @@ import Data.Packed.Development
 --import Numeric.LinearAlgebra.Instances()
 --import Numeric.LinearAlgebra.Linear(Linear(..))
 
-import Foreign
-import Foreign.C.Types(CInt)
+import Foreign hiding (unsafePerformIO)
+import Foreign.C.Types(CInt(..))
 --import Foreign.Marshal.Alloc(alloca)
+
+import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 

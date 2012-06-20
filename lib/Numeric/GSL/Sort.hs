@@ -22,8 +22,10 @@ module Numeric.GSL.Sort (
 import Data.Packed.Vector
 import Data.Packed.Development
 
-import Foreign
-import Foreign.C.Types(CInt)
+import Foreign hiding (unsafePerformIO)
+import Foreign.C.Types(CInt(..))
+
+import System.IO.Unsafe(unsafePerformIO)
 
 -- | sort the elements of a vector into ascending order
 sort :: Vector Double -> Vector Double

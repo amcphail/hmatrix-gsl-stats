@@ -29,10 +29,10 @@ import Data.Packed.Development
 
 --import Control.Monad(when)
 
-import Foreign
+import Foreign hiding (unsafePerformIO)
 --import Foreign.ForeignPtr
 --import Foreign.Marshal.Alloc(alloca)
-import Foreign.C.Types(CInt)
+import Foreign.C.Types(CInt(..))
 --import Foreign.C.String(newCString,peekCString)
 
 --import GHC.ForeignPtr           (mallocPlainForeignPtrBytes)
@@ -41,6 +41,8 @@ import Foreign.C.Types(CInt)
 --import GHC.IOBase
 
 --import Prelude hiding(reverse)
+
+import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
