@@ -233,11 +233,11 @@ vectorToTuples = toTuples . toList
 -- | create from ranges and bins
 fromMatrix :: Vector Double            -- ^ x ranges
            -> Vector Double            -- ^ y ranges
-           -> Matrix Double            -- ^ bins
+           -> Matrix Double            -- ^ bins (row major)
            -> Histogram2D              -- ^result
 fromMatrix x y w = unsafePerformIO $ do
                    h@(H _ _ h') <- fromRangesIO x y
-                   app3 (\xs x' ys y' rs cs b -> withForeignPtr h' $ \h'' -> histogram_from_matrix h'' xs x' ys y' rs cs b) vec x vec y mat w "fromMatrix"
+                   app3 (\xs x' ys y' rs cs b -> withForeignPtr h' $ \h'' -> histogram_from_matrix h'' xs x' ys y' rs cs b) vec x vec y mat (cmat w) "fromMatrix"
                    return h
 
 foreign import ccall "histogram-aux.h from_matrix" histogram_from_matrix :: Hist2DHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> CInt -> Ptr Double -> IO CInt

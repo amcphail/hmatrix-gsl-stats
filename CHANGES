@@ -67,3 +67,6 @@
 
 0.1.3.3:
 		removed reference to '-fvector' from the .cabal file
+
+0.2:
+		add `cmat` to `app` FFI calls for matrices

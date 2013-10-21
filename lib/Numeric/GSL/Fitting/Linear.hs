@@ -134,7 +134,7 @@ multifit x y = unsafePerformIO $ do
                cov <- createMatrix RowMajor p p
                c <- createVector p
                alloca$ \chi_sq -> do
-                   app4 (fitting_multifit chi_sq) mat x vec y vec c mat cov "multifit"
+                   app4 (fitting_multifit chi_sq) mat (cmat x) vec y vec c mat cov "multifit"
                    chi_sq' <- peek chi_sq
                    return (c,cov,chi_sq')
 
@@ -154,7 +154,7 @@ multifit_w x w y = unsafePerformIO $ do
                    cov <- createMatrix RowMajor p p
                    c <- createVector p
                    alloca$ \chi_sq -> do
-                       app5 (fitting_multifit_w chi_sq) mat x vec w vec y vec c mat cov "multifit"
+                       app5 (fitting_multifit_w chi_sq) mat (cmat x) vec w vec y vec c mat cov "multifit"
                        chi_sq' <- peek chi_sq
                        return (c,cov,chi_sq')
 
@@ -168,7 +168,7 @@ foreign import ccall "fitting_aux.h multifit_weighted" fitting_multifit_w :: Ptr
 multifit_est :: Vector Double     -- ^ input point
              -> Vector Double     -- ^ the coefficients
              -> Matrix Double     -- ^ the covariance matrix
-             -> (Double,Double)   -- ^ (y,y_error_
+             -> (Double,Double)   -- ^ (y,y_error)
 multifit_est x c cov = unsafePerformIO $ do
                        alloca $ \y ->
                            alloca $ \e -> do
