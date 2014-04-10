@@ -58,7 +58,7 @@ import Numeric.LinearAlgebra hiding (multiply,add,divide,scale,find)
 --import Control.Monad
 import Data.Binary
 
-import Foreign hiding(shift,unsafePerformIO)
+import Foreign hiding(shift)
 --import Foreign.ForeignPtr
 --import Foreign.Marshal.Alloc(alloca)
 import Foreign.C.Types(CInt(..),CChar(..))

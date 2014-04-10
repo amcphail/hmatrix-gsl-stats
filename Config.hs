@@ -42,16 +42,16 @@ opts = [ ""                              -- Ubuntu/Debian
 testprog bInfo buildInfo libs fmks =
     "echo \"#include <gsl/gsl_sf_gamma.h>\nint main(){zgesvd_(); gsl_sf_gamma(5);}\""
                      ++" > " ++ (buildDir bInfo) ++ "/dummy.c; gcc "
-                     ++ (join $ ccOptions buildInfo) ++ " "
-                     ++ (join $ cppOptions buildInfo) ++ " "
-                     ++ (join $ map ("-I"++) $ includeDirs buildInfo) ++ " " 
+                     ++ (join_ $ ccOptions buildInfo) ++ " "
+                     ++ (join_ $ cppOptions buildInfo) ++ " "
+                     ++ (join_ $ map ("-I"++) $ includeDirs buildInfo) ++ " " 
                      ++ (buildDir bInfo) ++ "/dummy.c -o "
                      ++ (buildDir bInfo) ++ "/dummy "
-                     ++ (join $ map ("-L"++) $ extraLibDirs buildInfo) ++ " "
+                     ++ (join_ $ map ("-L"++) $ extraLibDirs buildInfo) ++ " "
                      ++ (prepend "-l" $ libs) ++ " "
                      ++ (prepend "-framework " fmks) ++ " > /dev/null 2> /dev/null"
 
-join = intercalate " "
+join_ = intercalate " "
 prepend x = unwords . map (x++) . words
 
 check bInfo buildInfo libs fmks = (ExitSuccess ==) `fmap` system (testprog bInfo buildInfo libs fmks)
@@ -59,12 +59,12 @@ check bInfo buildInfo libs fmks = (ExitSuccess ==) `fmap` system (testprog bInfo
 -- simple test for GSL
 gsl bInfo buildInfo = "echo \"#include <gsl/gsl_sf_gamma.h>\nint main(){gsl_sf_gamma(5);}\""
            ++" > " ++ (buildDir bInfo) ++ "/dummy.c; gcc "
-           ++ (join $ ccOptions buildInfo) ++ " "
-           ++ (join $ cppOptions buildInfo) ++ " "
-           ++ (join $ map ("-I"++) $ includeDirs buildInfo) ++ " " 
+           ++ (join_ $ ccOptions buildInfo) ++ " "
+           ++ (join_ $ cppOptions buildInfo) ++ " "
+           ++ (join_ $ map ("-I"++) $ includeDirs buildInfo) ++ " " 
            ++ (buildDir bInfo) ++ "/dummy.c -o "
            ++ (buildDir bInfo) ++ "/dummy "
-           ++ (join $ map ("-L"++) $ extraLibDirs buildInfo) ++ " -lgsl -lgslcblas"
+           ++ (join_ $ map ("-L"++) $ extraLibDirs buildInfo) ++ " -lgsl -lgslcblas"
            ++ " > /dev/null 2> /dev/null"
 
 -- test for gsl >= 1.12
@@ -72,11 +72,11 @@ gsl112 bInfo buildInfo =
     "echo \"#include <gsl/gsl_sf_exp.h>\nint main(){gsl_sf_exprel_n_CF_e(1,1,0);}\""
            ++" > " ++ (buildDir bInfo) ++ "/dummy.c; gcc " 
            ++ (buildDir bInfo) ++ "/dummy.c "
-           ++ (join $ ccOptions buildInfo) ++ " "
-           ++ (join $ cppOptions buildInfo) ++ " "
-           ++ (join $ map ("-I"++) $ includeDirs buildInfo)
+           ++ (join_ $ ccOptions buildInfo) ++ " "
+           ++ (join_ $ cppOptions buildInfo) ++ " "
+           ++ (join_ $ map ("-I"++) $ includeDirs buildInfo)
            ++" -o " ++ (buildDir bInfo) ++ "/dummy "
-           ++ (join $ map ("-L"++) $ extraLibDirs buildInfo) ++ " -lgsl -lgslcblas"
+           ++ (join_ $ map ("-L"++) $ extraLibDirs buildInfo) ++ " -lgsl -lgslcblas"
            ++ " > /dev/null 2> /dev/null"
 
 

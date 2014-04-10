@@ -29,7 +29,7 @@ import Data.Packed.Development
 
 --import Control.Monad(when)
 
-import Foreign hiding (unsafePerformIO)
+import Foreign
 --import Foreign.ForeignPtr
 --import Foreign.Marshal.Alloc(alloca)
 import Foreign.C.Types(CInt(..))

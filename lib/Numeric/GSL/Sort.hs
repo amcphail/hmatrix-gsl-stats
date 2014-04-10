@@ -22,7 +22,7 @@ module Numeric.GSL.Sort (
 import Data.Packed.Vector
 import Data.Packed.Development
 
-import Foreign hiding (unsafePerformIO)
+import Foreign
 import Foreign.C.Types(CInt(..))
 
 import System.IO.Unsafe(unsafePerformIO)

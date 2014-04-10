@@ -63,7 +63,7 @@ import Numeric.LinearAlgebra hiding (multiply,add,divide,scale,find)
 
 import Data.Binary
 
-import Foreign hiding(shift,unsafePerformIO)
+import Foreign hiding(shift)
 --import Foreign.Storable
 --import Foreign.Ptr
 --import Foreign.ForeignPtr
