@@ -4,7 +4,7 @@
 -- |
 -- Module      :  Numeric.GSL.Histogram2D
 -- Copyright   :  (c) A. V. H. McPhail 2010
--- License     :  GPL-style
+-- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
 -- Stability   :  provisional
