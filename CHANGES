@@ -70,3 +70,6 @@
 
 0.2:
 		add `cmat` to `app` FFI calls for matrices
+
+0.2.1:
+		Update build configuration : copied from hmatrix
