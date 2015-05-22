@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Distribution.Discrete
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -19,9 +19,9 @@ module Numeric.GSL.Distribution.Discrete (
                                 , TwoParamDist(..), ThreeParamDist(..)
                                 , MultiParamDist(..)
                                 , DistFunc(..)
-                                , random_1p, density_1p
-                                , random_2p, density_2p
-                                , random_3p, density_3p
+                                , random_1p, random_1p_v, density_1p
+                                , random_2p, random_2p_v, density_2p
+                                , random_3p, random_3p_v, density_3p
                                 , random_mp, density_mp
                              ) where
 
@@ -89,6 +89,17 @@ random_1p d s p = unsafePerformIO $
                       r' <- peek r
                       return $ fromIntegral r'
 
+-- | draw samples from a one parameter distribution
+random_1p_v :: OneParamDist    -- ^ distribution type
+            -> Int             -- ^ random seed
+            -> Double          -- ^ parameter
+            -> Int             -- ^ number of samples
+            -> Vector Int      -- ^ result
+random_1p_v d s p l = unsafePerformIO $ do
+   r <- createVector l
+   app1 (distribution_discrete_one_param_v (fromIntegral s) (fromei d) p) vec r "random_1p_v"
+   return (mapVector fromIntegral r)
+
 -- | probability of a variate take a value outside the argument
 density_1p :: OneParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
@@ -110,6 +121,7 @@ density_1p d f p x = unsafePerformIO $ do
                                        else distribution_dist_one_param (fromei f') (fromei d') (fromIntegral x') p'
 
 foreign import ccall "distribution-aux.h discrete1" distribution_discrete_one_param :: CInt -> CInt -> Double -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete1_v" distribution_discrete_one_param_v :: CInt -> CInt -> Double -> CInt -> Ptr Int -> IO CInt
 foreign import ccall "distribution-aux.h discrete1_dist" distribution_dist_one_param :: CInt -> CInt -> CUInt -> Double -> IO Double
 
 -----------------------------------------------------------------------------
@@ -126,6 +138,18 @@ random_2p d s p1 p2  = unsafePerformIO $
                            r' <- peek r
                            return $ fromIntegral r'
 
+-- | draw samples from a two parameter distribution
+random_2p_v :: TwoParamDist    -- ^ distribution type
+            -> Int             -- ^ random seed
+            -> Double          -- ^ parameter 1
+            -> Int             -- ^ parameter 2
+            -> Int             -- ^ number of samples
+            -> Vector Int      -- ^ result
+random_2p_v d s p1 p2 l = unsafePerformIO $ do
+   r <- createVector l
+   app1 (distribution_discrete_two_param_v (fromIntegral s) (fromei d) p1 (fromIntegral p2)) vec r "random_2p_v"
+   return (mapVector fromIntegral r)
+
 -- | probability of a variate take a value outside the argument
 density_2p :: TwoParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
@@ -141,6 +165,7 @@ density_2p d f p1 p2 x = unsafePerformIO $ do
                                           else distribution_dist_two_param (fromei f') (fromei d') (fromIntegral x') p1' (fromIntegral p2')
 
 foreign import ccall "distribution-aux.h discrete2" distribution_discrete_two_param :: CInt -> CInt -> Double -> CUInt -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete2_v" distribution_discrete_two_param_v :: CInt -> CInt -> Double -> CUInt -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete2_dist" distribution_dist_two_param :: CInt -> CInt -> CUInt -> Double -> CUInt -> IO Double
 
 -----------------------------------------------------------------------------
@@ -157,6 +182,18 @@ random_3p d s p1 p2 p3 = unsafePerformIO $
                                  check "random_3p" $ distribution_discrete_three_param (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3) r
                                  r' <- peek r
                                  return $ fromIntegral r'
+-- | draw samples from a three parameter distribution
+random_3p_v :: ThreeParamDist  -- ^ distribution type
+            -> Int             -- ^ random seed
+            -> Int             -- ^ parameter 1
+            -> Int             -- ^ parameter 2
+            -> Int             -- ^ parameter 3
+            -> Int             -- ^ number of samples
+            -> Vector Int      -- ^ result
+random_3p_v d s p1 p2 p3 l = unsafePerformIO $ do
+   r <- createVector l
+   app1 (distribution_discrete_three_param_v (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3)) vec r "random_3p_v"
+   return (mapVector fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
 density_3p :: ThreeParamDist   -- ^ density type
@@ -174,6 +211,7 @@ density_3p d f p1 p2 p3 x = unsafePerformIO $ do
                                        else distribution_dist_three_param (fromei f') (fromei d') (fromIntegral x') (fromIntegral p1') (fromIntegral p2') (fromIntegral p3')
 
 foreign import ccall "distribution-aux.h discrete3" distribution_discrete_three_param :: CInt -> CInt -> CUInt -> CUInt -> CUInt -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete3_v" distribution_discrete_three_param_v :: CInt -> CInt -> CUInt -> CUInt -> CUInt -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete3_dist" distribution_dist_three_param :: CInt -> CInt -> CUInt -> CUInt -> CUInt -> CUInt -> IO Double
 
 -----------------------------------------------------------------------------

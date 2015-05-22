@@ -73,3 +73,6 @@
 
 0.2.1:
 		Update build configuration : copied from hmatrix
+
+0.3:
+		Added vectors of samples
