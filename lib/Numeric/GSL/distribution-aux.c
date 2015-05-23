@@ -31,8 +31,10 @@ int random0_v(int s, int type, int rs, double* r)
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_landau(rng); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_landau(rng); break; }
   }
 
   gsl_rng_free(rng);
@@ -92,15 +94,17 @@ int random1_v(int s, int type, double par, int rs, double* r)
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_gaussian(rng,par); break; }
-  case 1: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_exponential(rng,par); break; }
-  case 2: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_laplace(rng,par); break; }
-  case 3: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_cauchy(rng,par); break; }
-  case 4: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_rayleigh(rng,par); break; }
-  case 5: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_chisq(rng,par); break; }
-  case 6: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_tdist(rng,par); break; }
-  case 7: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_logistic(rng,par); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_gaussian(rng,par); break; }
+  case 1: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_exponential(rng,par); break; }
+  case 2: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_laplace(rng,par); break; }
+  case 3: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_cauchy(rng,par); break; }
+  case 4: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_rayleigh(rng,par); break; }
+  case 5: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_chisq(rng,par); break; }
+  case 6: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_tdist(rng,par); break; }
+  case 7: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_logistic(rng,par); break; }
   }
 
   gsl_rng_free(rng);
@@ -232,20 +236,22 @@ int random2_v(int s, int type, double par1, double par2, int rs, double* r)
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] (*r) = gsl_ran_gaussian_tail(rng,par1,par2); break; }
-  case 1: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_exppow(rng,par1,par2); break; }
-  case 2: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_rayleigh_tail(rng,par1,par2); break; }
-  case 3: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_levy(rng,par1,par2); break; }
-  case 4: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_gamma(rng,par1,par2); break; }
-  case 5: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_flat(rng,par1,par2); break; }
-  case 6: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_lognormal(rng,par1,par2); break; }
-  case 7: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_fdist(rng,par1,par2); break; }
-  case 8: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_beta(rng,par1,par2); break; }
-  case 9: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_pareto(rng,par1,par2); break; }
-  case 10: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_weibull(rng,par1,par2); break; }
-  case 11: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_gumbel1(rng,par1,par2); break; }
-  case 12: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_gumbel2(rng,par1,par2); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_gaussian_tail(rng,par1,par2); break; }
+  case 1: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_exppow(rng,par1,par2); break; }
+  case 2: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_rayleigh_tail(rng,par1,par2); break; }
+  case 3: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_levy(rng,par1,par2); break; }
+  case 4: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_gamma(rng,par1,par2); break; }
+  case 5: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_flat(rng,par1,par2); break; }
+  case 6: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_lognormal(rng,par1,par2); break; }
+  case 7: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_fdist(rng,par1,par2); break; }
+  case 8: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_beta(rng,par1,par2); break; }
+  case 9: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_pareto(rng,par1,par2); break; }
+  case 10: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_weibull(rng,par1,par2); break; }
+  case 11: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_gumbel1(rng,par1,par2); break; }
+  case 12: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_gumbel2(rng,par1,par2); break; }
   }
 
   gsl_rng_free(rng);
@@ -375,16 +381,16 @@ int random3_v(int s, int type, double par1, double par2, double par3, int rs, do
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_levy_skew(rng,par1,par2,par3); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_levy_skew(rng,par1,par2,par3); break; }
   }
 
   gsl_rng_free(rng);
 
   return 0;
 }
-
-for (int i = 0; i < rs; i ++) r[i] 
 
 double random3_pdf(int type, double x, double par1, double par2, double par3)
 {
@@ -455,6 +461,8 @@ int random_biv(int s, int type, double par1, double par2, double par3, double* r
 
 int random_biv_v(int s, int type, double par1, double par2, double par3, int rs1, double* r1, int rs2, double* r2)
 {
+  if (rs1 != rs2) return 2000; // BAD_SIZE
+
   const gsl_rng_type * T;
   gsl_rng * rng;
 
@@ -463,8 +471,10 @@ int random_biv_v(int s, int type, double par1, double par2, double par3, int rs1
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) gsl_ran_bivariate_gaussian(rng,par1,par2,par3,r1[i],r2[i]); break; }
+  case 0: { for (i = 0; i < rs1; i++) gsl_ran_bivariate_gaussian(rng,par1,par2,par3,&r1[i],&r2[i]); break; }
   }
 
   gsl_rng_free(rng);
@@ -642,19 +652,19 @@ int discrete1_v(int s, int type, double par, int rs, unsigned int* r)
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_poisson(rng,par); break; }
-  case 1: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_bernoulli(rng,par); break; }
-  case 2: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_laplace(rng,par); break; }
-  case 3: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_logarithmic(rng,par); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_poisson(rng,par); break; }
+  case 1: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_bernoulli(rng,par); break; }
+  case 2: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_laplace(rng,par); break; }
+  case 3: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_logarithmic(rng,par); break; }
   }
 
   gsl_rng_free(rng);
 
   return 0;
 }
-
-for (int i = 0; i < rs; i ++) r[i]
 
 double discrete1_pdf(int type, unsigned int x, double par)
 {
@@ -730,7 +740,7 @@ int discrete2(int s, int type, double par1, unsigned int par2, unsigned int* r)
   return 0;
 }
 
-int discrete2(int s, int type, double par1, unsigned int par2, int rs, unsigned int* r)
+int discrete2_v(int s, int type, double par1, unsigned int par2, int rs, unsigned int* r)
 {
   const gsl_rng_type * T;
   gsl_rng * rng;
@@ -740,17 +750,19 @@ int discrete2(int s, int type, double par1, unsigned int par2, int rs, unsigned 
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_binomial(rng,par1,par2); break; }
-  case 1: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_negative_binomial(rng,par1,par2*1.0); break; }
-  case 2: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_pascal(rng,par1,par2); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_binomial(rng,par1,par2); break; }
+  case 1: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_negative_binomial(rng,par1,par2*1.0); break; }
+  case 2: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_pascal(rng,par1,par2); break; }
   }
 
   gsl_rng_free(rng);
 
   return 0;
 }
-for (int i = 0; i < rs; i ++) r[i] 
+
 double discrete2_pdf(int type, unsigned int x, double par1, unsigned int par2)
 {
   switch (type) {
@@ -824,7 +836,7 @@ int discrete3(int s, int type, unsigned int par1, unsigned int par2, unsigned in
   return 0;
 }
 
-int discrete3(int s, int type, unsigned int par1, unsigned int par2, int rs, unsigned int par3, double* r)
+int discrete3_v(int s, int type, unsigned int par1, unsigned int par2, unsigned int par3, int rs, double* r)
 {
   const gsl_rng_type * T;
   gsl_rng * rng;
@@ -834,15 +846,17 @@ int discrete3(int s, int type, unsigned int par1, unsigned int par2, int rs, uns
   rng = gsl_rng_alloc(T);
   gsl_rng_set(rng,s);
 
+  int i;
+
   switch(type) {
-  case 0: { for (int i = 0; i < rs; i ++) r[i] = gsl_ran_hypergeometric(rng,par1,par2,par3); break; }
+  case 0: { for (i = 0; i < rs; i ++) r[i] = gsl_ran_hypergeometric(rng,par1,par2,par3); break; }
   }
 
   gsl_rng_free(rng);
 
   return 0;
 }
-for (int i = 0; i < rs; i ++) r[i] 
+
 double discrete3_pdf(int type, double x, unsigned int par1, unsigned int par2, unsigned int par3)
 {
   switch (type) {

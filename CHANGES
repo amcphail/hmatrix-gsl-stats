@@ -76,3 +76,7 @@
 
 0.3:
 		Added vectors of samples
+
+0.3.0.1:
+		fixed int declaration for for loops
+		fixed up some C errors in distribution-aux.c
