@@ -80,3 +80,7 @@
 0.3.0.1:
 		fixed int declaration for for loops
 		fixed up some C errors in distribution-aux.c
+
+0.3.0.2:
+		bumped hmatrix dependency
+		added gsl to library dependencies
