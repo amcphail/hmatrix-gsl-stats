@@ -121,7 +121,7 @@ density_1p d f p x = unsafePerformIO $ do
                                        else distribution_dist_one_param (fromei f') (fromei d') (fromIntegral x') p'
 
 foreign import ccall "distribution-aux.h discrete1" distribution_discrete_one_param :: CInt -> CInt -> Double -> Ptr CUInt -> IO CInt
-foreign import ccall "distribution-aux.h discrete1_v" distribution_discrete_one_param_v :: CInt -> CInt -> Double -> CInt -> Ptr Int -> IO CInt
+foreign import ccall "distribution-aux.h discrete1_v" distribution_discrete_one_param_v :: CInt -> CInt -> Double -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete1_dist" distribution_dist_one_param :: CInt -> CInt -> CUInt -> Double -> IO Double
 
 -----------------------------------------------------------------------------
