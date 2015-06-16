@@ -1,5 +1,5 @@
 Name:               hmatrix-gsl-stats
-Version:            0.3.0.3
+Version:            0.4
 License:            BSD3
 License-file:       LICENSE
 Copyright:          (c) A.V.H. McPhail 2010, 2011, 2013, 2015
@@ -50,7 +50,7 @@ library
                         Numeric.GSL.Distribution.Discrete
                         Numeric.GSL.Distribution.Common
                         Numeric.GSL.Fitting.Linear
-    other-modules:      
+    other-modules:      Numeric.GSL.Distribution.Internal
     C-sources:          lib/Numeric/GSL/statistics-aux.c
                         lib/Numeric/GSL/sort-aux.c
                         lib/Numeric/GSL/histogram-aux.c

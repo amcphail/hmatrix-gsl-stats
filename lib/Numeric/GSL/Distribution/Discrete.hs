@@ -50,6 +50,7 @@ import Foreign.C.Types(CInt(..),CUInt(..))
 --import Prelude hiding(reverse)
 
 import Numeric.GSL.Distribution.Common
+import Numeric.GSL.Distribution.Internal
 
 import System.IO.Unsafe(unsafePerformIO)
 
@@ -89,6 +90,18 @@ random_1p d s p = unsafePerformIO $
                       r' <- peek r
                       return $ fromIntegral r'
 
+-- | draw a sample from a one parameter distribution
+random_1p_s :: RNG           -- ^ RNG
+            -> OneParamDist    -- ^ distribution type
+            -> Double          -- ^ parameter
+            -> IO Int          -- ^ result
+random_1p_s (RNG rng) d p = do
+  alloca $ \r ->
+    withForeignPtr rng $ \rg -> do
+      check "random1p_s" $ distribution_discrete_one_param_s rg (fromei d) p r
+      r' <- peek r
+      return $ fromIntegral r'
+
 -- | draw samples from a one parameter distribution
 random_1p_v :: OneParamDist    -- ^ distribution type
             -> Int             -- ^ random seed
@@ -121,6 +134,7 @@ density_1p d f p x = unsafePerformIO $ do
                                        else distribution_dist_one_param (fromei f') (fromei d') (fromIntegral x') p'
 
 foreign import ccall "distribution-aux.h discrete1" distribution_discrete_one_param :: CInt -> CInt -> Double -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete1_s" distribution_discrete_one_param_s :: RNGHandle -> CInt -> Double -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete1_v" distribution_discrete_one_param_v :: CInt -> CInt -> Double -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete1_dist" distribution_dist_one_param :: CInt -> CInt -> CUInt -> Double -> IO Double
 
@@ -137,6 +151,18 @@ random_2p d s p1 p2  = unsafePerformIO $
                            check "random2p" $ distribution_discrete_two_param (fromIntegral s) (fromei d) p1 (fromIntegral p2) r
                            r' <- peek r
                            return $ fromIntegral r'
+
+-- | draw a sample from a two parameter distribution
+random_2p_s :: RNG           -- ^ RNG
+            -> TwoParamDist    -- ^ distribution type
+            -> Double          -- ^ parameter 1
+            -> Int             -- ^ parameter 2
+            -> IO Int          -- ^ result
+random_2p_s (RNG rng) d p1 p2  = alloca $ \r ->
+  withForeignPtr rng $ \rg -> do
+    check "random2p_s" $ distribution_discrete_two_param_s rg (fromei d) p1 (fromIntegral p2) r
+    r' <- peek r
+    return $ fromIntegral r'
 
 -- | draw samples from a two parameter distribution
 random_2p_v :: TwoParamDist    -- ^ distribution type
@@ -165,6 +191,7 @@ density_2p d f p1 p2 x = unsafePerformIO $ do
                                           else distribution_dist_two_param (fromei f') (fromei d') (fromIntegral x') p1' (fromIntegral p2')
 
 foreign import ccall "distribution-aux.h discrete2" distribution_discrete_two_param :: CInt -> CInt -> Double -> CUInt -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete2_s" distribution_discrete_two_param_s :: RNGHandle -> CInt -> Double -> CUInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete2_v" distribution_discrete_two_param_v :: CInt -> CInt -> Double -> CUInt -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete2_dist" distribution_dist_two_param :: CInt -> CInt -> CUInt -> Double -> CUInt -> IO Double
 
@@ -182,6 +209,20 @@ random_3p d s p1 p2 p3 = unsafePerformIO $
                                  check "random_3p" $ distribution_discrete_three_param (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3) r
                                  r' <- peek r
                                  return $ fromIntegral r'
+
+-- | draw a sample from a three parameter distribution
+random_3p_s :: RNG           -- ^ RNG
+            -> ThreeParamDist  -- ^ distribution type
+            -> Int             -- ^ parameter 1
+            -> Int             -- ^ parameter 2
+            -> Int             -- ^ parameter 3
+            -> IO Int          -- ^ result
+random_3p_s (RNG rng) d p1 p2 p3 = alloca $ \r ->
+  withForeignPtr rng $ \rg -> do
+    check "random_3p_s" $ distribution_discrete_three_param_s rg (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3) r
+    r' <- peek r
+    return $ fromIntegral r'
+
 -- | draw samples from a three parameter distribution
 random_3p_v :: ThreeParamDist  -- ^ distribution type
             -> Int             -- ^ random seed
@@ -211,12 +252,13 @@ density_3p d f p1 p2 p3 x = unsafePerformIO $ do
                                        else distribution_dist_three_param (fromei f') (fromei d') (fromIntegral x') (fromIntegral p1') (fromIntegral p2') (fromIntegral p3')
 
 foreign import ccall "distribution-aux.h discrete3" distribution_discrete_three_param :: CInt -> CInt -> CUInt -> CUInt -> CUInt -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete3_s" distribution_discrete_three_param_s :: RNGHandle -> CInt -> CUInt -> CUInt -> CUInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete3_v" distribution_discrete_three_param_v :: CInt -> CInt -> CUInt -> CUInt -> CUInt -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete3_dist" distribution_dist_three_param :: CInt -> CInt -> CUInt -> CUInt -> CUInt -> CUInt -> IO Double
 
 -----------------------------------------------------------------------------
 
--- | draw a sample from a three parameter distribution
+-- | draw a sample from a multi-parameter distribution
 random_mp :: MultiParamDist  -- ^ distribution type
           -> Int             -- ^ random seed
           -> Int             -- ^ trials
@@ -226,6 +268,17 @@ random_mp d s t p = unsafePerformIO $ do
                     r <- createVector $ dim p
                     app2 (distribution_discrete_multi_param (fromIntegral s) (fromei d) (fromIntegral t)) vec p vec r "random_mp"
                     return $ mapVector (\x -> (fromIntegral x) :: Int) r
+
+-- | draw a sample from a multi-parameter distribution
+random_mp_s :: RNG           -- ^ RNG
+            -> MultiParamDist  -- ^ distribution type
+            -> Int             -- ^ trials
+            -> Vector Double   -- ^ parameters
+            -> IO (Vector Int) -- ^ result
+random_mp_s (RNG rng) d t p = withForeignPtr rng $ \rg -> do
+  r <- createVector $ dim p
+  app2 (distribution_discrete_multi_param_s rg (fromei d) (fromIntegral t)) vec p vec r "random_mp_s"
+  return $ mapVector (\x -> (fromIntegral x) :: Int) r
 
 -- | probability of a variate take a value outside the argument
 density_mp :: MultiParamDist   -- ^ density type
@@ -244,6 +297,7 @@ density_mp d f p q = unsafePerformIO $ do
                                                                   return r'
 
 foreign import ccall "distribution-aux.h discrete_mp" distribution_discrete_multi_param :: CInt -> CInt -> CUInt -> CInt -> Ptr Double -> CInt -> Ptr CUInt -> IO CInt
+foreign import ccall "distribution-aux.h discrete_mp_s" distribution_discrete_multi_param_s :: RNGHandle -> CInt -> CUInt -> CInt -> Ptr Double -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete_mp_dist" distribution_dist_multi_param :: CInt -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr CUInt -> IO CInt
 
 -----------------------------------------------------------------------------

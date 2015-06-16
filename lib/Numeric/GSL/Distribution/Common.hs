@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Distribution.Common
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -16,7 +16,13 @@
 
 module Numeric.GSL.Distribution.Common (
                                 DistFunc(..)
+                                ,RNG()
+                                ,newRNG,seedRNG
                              ) where
+
+-----------------------------------------------------------------------------
+
+import Numeric.GSL.Distribution.Internal
 
 -----------------------------------------------------------------------------
 
@@ -28,3 +34,4 @@ data DistFunc = Density    -- ^ pdf
                 deriving(Enum,Eq)
 
 -----------------------------------------------------------------------------
+

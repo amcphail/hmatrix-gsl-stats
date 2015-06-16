@@ -2,6 +2,18 @@
 #include <gsl/gsl_randist.h>
 #include <gsl/gsl_cdf.h>
 
+gsl_rng* new_rng()
+{
+  const gsl_rng_type * T;
+  gsl_rng * rng;
+
+  gsl_rng_env_setup();
+  T = gsl_rng_default;
+  rng = gsl_rng_alloc(T);
+
+  return rng;
+}
+
 int random0(int s, int type, double* r)
 {
   const gsl_rng_type * T;
@@ -18,6 +30,14 @@ int random0(int s, int type, double* r)
 
   gsl_rng_free(rng);
 
+  return 0;
+}
+
+int random0_s(gsl_rng* rng, int type, double* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_landau(rng); break; }
+  }
   return 0;
 }
 
@@ -81,6 +101,21 @@ int random1(int s, int type, double par, double* r)
 
   gsl_rng_free(rng);
 
+  return 0;
+}
+
+int random1_s(gsl_rng* rng, int type, double par, double* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_gaussian(rng,par); break; }
+  case 1: { (*r) = gsl_ran_exponential(rng,par); break; }
+  case 2: { (*r) = gsl_ran_laplace(rng,par); break; }
+  case 3: { (*r) = gsl_ran_cauchy(rng,par); break; }
+  case 4: { (*r) = gsl_ran_rayleigh(rng,par); break; }
+  case 5: { (*r) = gsl_ran_chisq(rng,par); break; }
+  case 6: { (*r) = gsl_ran_tdist(rng,par); break; }
+  case 7: { (*r) = gsl_ran_logistic(rng,par); break; }
+  }
   return 0;
 }
 
@@ -223,6 +258,26 @@ int random2(int s, int type, double par1, double par2, double* r)
 
   gsl_rng_free(rng);
 
+  return 0;
+}
+
+int random2_s(gsl_rng* rng, int type, double par1, double par2, double* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_gaussian_tail(rng,par1,par2); break; }
+  case 1: { (*r) = gsl_ran_exppow(rng,par1,par2); break; }
+  case 2: { (*r) = gsl_ran_rayleigh_tail(rng,par1,par2); break; }
+  case 3: { (*r) = gsl_ran_levy(rng,par1,par2); break; }
+  case 4: { (*r) = gsl_ran_gamma(rng,par1,par2); break; }
+  case 5: { (*r) = gsl_ran_flat(rng,par1,par2); break; }
+  case 6: { (*r) = gsl_ran_lognormal(rng,par1,par2); break; }
+  case 7: { (*r) = gsl_ran_fdist(rng,par1,par2); break; }
+  case 8: { (*r) = gsl_ran_beta(rng,par1,par2); break; }
+  case 9: { (*r) = gsl_ran_pareto(rng,par1,par2); break; }
+  case 10: { (*r) = gsl_ran_weibull(rng,par1,par2); break; }
+  case 11: { (*r) = gsl_ran_gumbel1(rng,par1,par2); break; }
+  case 12: { (*r) = gsl_ran_gumbel2(rng,par1,par2); break; }
+  }
   return 0;
 }
 
@@ -371,6 +426,14 @@ int random3(int s, int type, double par1, double par2, double par3, double* r)
   return 0;
 }
 
+int random3_s(gsl_rng* rng, int type, double par1, double par2, double par3, double* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_levy_skew(rng,par1,par2,par3); break; }
+  }
+  return 0;
+}
+
 int random3_v(int s, int type, double par1, double par2, double par3, int rs, double* r)
 {
   const gsl_rng_type * T;
@@ -456,6 +519,14 @@ int random_biv(int s, int type, double par1, double par2, double par3, double* r
 
   gsl_rng_free(rng);
 
+  return 0;
+}
+
+int random_biv_s(gsl_rng* rng, int type, double par1, double par2, double par3, double* r1, double* r2)
+{
+  switch(type) {
+  case 0: { gsl_ran_bivariate_gaussian(rng,par1,par2,par3,r1,r2); break; }
+  }
   return 0;
 }
 
@@ -551,6 +622,14 @@ int random_mp(int s, int type, int ps, const double* p, int rs, double* r)
   return 0;
 }
 
+int random_mp_s(gsl_rng* rng, int type, int ps, const double* p, int rs, double* r)
+{
+  switch(type) {
+  case 0: { gsl_ran_dirichlet(rng,ps,p,r); break; }
+  }
+  return 0;
+}
+
 double random_mp_pdf(int type, int ps, const double* p, int qs, const double* q)
 {
   switch (type) {
@@ -639,6 +718,17 @@ int discrete1(int s, int type, double par, unsigned int* r)
 
   gsl_rng_free(rng);
 
+  return 0;
+}
+
+int discrete1_s(gsl_rng* rng, int type, double par, unsigned int* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_poisson(rng,par); break; }
+  case 1: { (*r) = gsl_ran_bernoulli(rng,par); break; }
+  case 2: { (*r) = gsl_ran_laplace(rng,par); break; }
+  case 3: { (*r) = gsl_ran_logarithmic(rng,par); break; }
+  }
   return 0;
 }
 
@@ -740,6 +830,16 @@ int discrete2(int s, int type, double par1, unsigned int par2, unsigned int* r)
   return 0;
 }
 
+int discrete2_s(gsl_rng* rng, int type, double par1, unsigned int par2, unsigned int* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_binomial(rng,par1,par2); break; }
+  case 1: { (*r) = gsl_ran_negative_binomial(rng,par1,par2*1.0); break; }
+  case 2: { (*r) = gsl_ran_pascal(rng,par1,par2); break; }
+  }
+  return 0;
+}
+
 int discrete2_v(int s, int type, double par1, unsigned int par2, int rs, unsigned int* r)
 {
   const gsl_rng_type * T;
@@ -836,6 +936,15 @@ int discrete3(int s, int type, unsigned int par1, unsigned int par2, unsigned in
   return 0;
 }
 
+int discrete3_s(gsl_rng* rng, int type, unsigned int par1, unsigned int par2, unsigned int par3, double* r)
+{
+  switch(type) {
+  case 0: { (*r) = gsl_ran_hypergeometric(rng,par1,par2,par3); break; }
+  }
+
+  return 0;
+}
+
 int discrete3_v(int s, int type, unsigned int par1, unsigned int par2, unsigned int par3, int rs, double* r)
 {
   const gsl_rng_type * T;
@@ -923,6 +1032,14 @@ int discrete_mp(int s, int type, unsigned int n, int ps, const double* p, int rs
 
   gsl_rng_free(rng);
 
+  return 0;
+}
+
+int discrete_mp_s(gsl_rng* rng, int type, unsigned int n, int ps, const double* p, int rs, unsigned int* r)
+{
+  switch(type) {
+  case 0: { gsl_ran_multinomial(rng,ps,n,p,r); break; }
+  }
   return 0;
 }
 

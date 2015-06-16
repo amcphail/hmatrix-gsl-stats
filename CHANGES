@@ -88,3 +88,6 @@
 0.3.0.3:
 		removed inline modifier from statistics-aux.c
 		fixed CInt -> CUInt in discrete_1p_v FFI call
+
+0.4:
+		added RNG type to pass between calls to RNG

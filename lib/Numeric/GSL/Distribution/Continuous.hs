@@ -20,12 +20,13 @@ module Numeric.GSL.Distribution.Continuous (
                                 , MultiParamDist(..)
                                 , BivariateDist(..)
                                 , DistFunc(..)
-                                , random_0p, random_0p_v, density_0p
-                                , random_1p, random_1p_v, density_1p
-                                , random_2p, random_2p_v, density_2p
-                                , random_3p, random_3p_v, density_3p
-                                , random_mp, density_mp
-                                , random_biv, random_biv_v, density_biv
+                                , random_0p,random_0p_s,random_0p_v,density_0p
+                                , random_1p,random_1p_s,random_1p_v,density_1p
+                                , random_2p,random_2p_s,random_2p_v,density_2p
+                                , random_3p,random_3p_s,random_3p_v,density_3p
+                                , random_mp,random_mp_s,density_mp
+                                , random_biv,random_biv_s
+                                , random_biv_v,density_biv
                                 , spherical_vector 
                              ) where
 
@@ -55,6 +56,7 @@ import Foreign.C.Types(CInt(..))
 --import Prelude hiding(reverse)
 
 import Numeric.GSL.Distribution.Common
+import Numeric.GSL.Distribution.Internal
 
 import System.IO.Unsafe(unsafePerformIO)
 
@@ -109,6 +111,12 @@ random_0p :: ZeroParamDist    -- ^ distribution type
           -> Double          -- ^ result
 random_0p d s = unsafePerformIO $ distribution_random_zero_param (fromIntegral s) (fromei d)            
 
+-- | draw a sample from a zero parameter distribution
+random_0p_s :: RNG             -- ^ the random number generator
+            -> ZeroParamDist   -- ^ distribution type
+            -> IO Double          -- ^ result
+random_0p_s (RNG rng) d = withForeignPtr rng $ \r -> distribution_random_zero_param_s r (fromei d)            
+
 -- | draw samples from a zero parameter distribution
 random_0p_v :: ZeroParamDist    -- ^ distribution type
             -> Int             -- ^ random seed
@@ -132,6 +140,7 @@ density_0p d f x = unsafePerformIO $ do
                                      else distribution_dist_zero_param (fromei f') (fromei d') x'
 
 foreign import ccall "distribution-aux.h random0" distribution_random_zero_param :: CInt -> CInt -> IO Double
+foreign import ccall "distribution-aux.h random0_s" distribution_random_zero_param_s :: RNGHandle -> CInt -> IO Double
 foreign import ccall "distribution-aux.h random0_v" distribution_random_zero_param_v :: CInt -> CInt -> CInt -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random0_dist" distribution_dist_zero_param :: CInt -> CInt -> Double -> IO Double
 
@@ -147,6 +156,16 @@ random_1p d s p = unsafePerformIO $
                       check "random1p" $ distribution_random_one_param (fromIntegral s) (fromei d) p r
                       r' <- peek r
                       return r'
+
+-- | draw a sample from a one parameter distribution
+random_1p_s :: RNG             -- ^ the random number generator
+            -> OneParamDist    -- ^ distribution type
+            -> Double          -- ^ parameter
+            -> IO Double       -- ^ result
+random_1p_s (RNG rng) d p = alloca $ \r -> do
+  check "random_1p_s" $ withForeignPtr rng $ \rg -> distribution_random_one_param_s rg (fromei d) p r
+  r' <- peek r
+  return r'
 
 -- | draw samples from a one parameter distribution
 random_1p_v :: OneParamDist    -- ^ distribution type
@@ -168,6 +187,7 @@ density_1p :: OneParamDist   -- ^ density type
 density_1p d f p x = unsafePerformIO $ distribution_dist_one_param (fromei f) (fromei d) x p
 
 foreign import ccall "distribution-aux.h random1" distribution_random_one_param :: CInt -> CInt -> Double -> Ptr Double -> IO CInt
+foreign import ccall "distribution-aux.h random1_s" distribution_random_one_param_s :: RNGHandle -> CInt -> Double -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random1_v" distribution_random_one_param_v :: CInt -> CInt -> Double -> CInt -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random1_dist" distribution_dist_one_param :: CInt -> CInt -> Double -> Double -> IO Double
 
@@ -184,6 +204,17 @@ random_2p d s p1 p2  = unsafePerformIO $
                            check "random2p" $ distribution_random_two_param (fromIntegral s) (fromei d) p1 p2 r
                            r' <- peek r
                            return r'
+
+-- | draw a sample from a two parameter distribution
+random_2p_s :: RNG             -- ^ the random number generator
+            -> TwoParamDist    -- ^ distribution type
+            -> Double          -- ^ parameter 1
+            -> Double          -- ^ parameter 2
+            -> IO Double       -- ^ result
+random_2p_s (RNG rng) d p1 p2 = alloca $ \r -> do
+  check "random_2p_s" $ withForeignPtr rng $ \rg -> distribution_random_two_param_s rg (fromei d) p1 p2 r
+  r' <- peek r
+  return r'
 
 -- | draw samples from a two parameter distribution
 random_2p_v :: TwoParamDist    -- ^ distribution type
@@ -219,6 +250,7 @@ density_2p d f p1 p2 x = unsafePerformIO $ do
                                           else distribution_dist_two_param (fromei f') (fromei d') x' p1' p2'
 
 foreign import ccall "distribution-aux.h random2" distribution_random_two_param :: CInt -> CInt -> Double -> Double -> Ptr Double -> IO CInt
+foreign import ccall "distribution-aux.h random2_s" distribution_random_two_param_s :: RNGHandle -> CInt -> Double -> Double -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random2_v" distribution_random_two_param_v :: CInt -> CInt -> Double -> Double -> CInt -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random2_dist" distribution_dist_two_param :: CInt -> CInt -> Double -> Double -> Double -> IO Double
 
@@ -236,6 +268,18 @@ random_3p d s p1 p2 p3 = unsafePerformIO $
                                  check "random_3p" $ distribution_random_three_param (fromIntegral s) (fromei d) p1 p2 p3 r
                                  r' <- peek r
                                  return r'
+
+-- | draw a sample from a three parameter distribution
+random_3p_s :: RNG             -- ^ the random number generator
+            -> ThreeParamDist  -- ^ distribution type
+            -> Double          -- ^ parameter 1
+            -> Double          -- ^ parameter 2
+            -> Double          -- ^ parameter 3
+            -> IO Double       -- ^ result
+random_3p_s (RNG rng) d p1 p2 p3 = alloca $ \r -> do
+  check "random_3p_s" $ withForeignPtr rng $ \rg -> distribution_random_three_param_s rg (fromei d) p1 p2 p3 r           
+  r' <- peek r
+  return r'
 
 -- | draw samples from a three parameter distribution
 random_3p_v :: ThreeParamDist  -- ^ distribution type
@@ -264,6 +308,7 @@ density_3p d _ _ _ _ _ = unsafePerformIO $ do
                                  _        -> error "unknown 3 parameter distribution"
 
 foreign import ccall "distribution-aux.h random3" distribution_random_three_param :: CInt -> CInt -> Double -> Double -> Double -> Ptr Double -> IO CInt
+foreign import ccall "distribution-aux.h random3_s" distribution_random_three_param_s :: RNGHandle -> CInt -> Double -> Double -> Double -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random3_v" distribution_random_three_param_v :: CInt -> CInt -> Double -> Double -> Double -> CInt -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random3_dist" distribution_dist_three_param :: CInt -> CInt -> Double -> Double -> Double -> Double -> IO Double
 
@@ -279,6 +324,17 @@ random_mp d s p = unsafePerformIO $ do
                   app2 (distribution_random_multi_param (fromIntegral s) (fromei d)) vec p vec r "random_mp"
                   return r
 
+-- | draw a sample from a multi parameter distribution
+random_mp_s :: RNG                -- ^ the random number generator
+            -> MultiParamDist     -- ^ distribution type
+            -> Vector Double      -- ^ parameters
+            -> IO (Vector Double) -- ^ result
+random_mp_s (RNG rng) d p = do
+  let l = dim p
+  r <- createVector l
+  withForeignPtr rng $ \rg -> app2 (distribution_random_multi_param_s rg (fromei d)) vec p vec r "random_mp_s"
+  return r
+  
 -- | probability of a variate take a value outside the argument
 density_mp :: MultiParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
@@ -296,6 +352,7 @@ density_mp d f p q = unsafePerformIO $ do
                                                                   return r'
 
 foreign import ccall "distribution-aux.h random_mp" distribution_random_multi_param :: CInt -> CInt -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
+foreign import ccall "distribution-aux.h random_mp_s" distribution_random_multi_param_s :: RNGHandle -> CInt -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random_mp_dist" distribution_dist_multi_param :: CInt -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
 
 -----------------------------------------------------------------------------
@@ -315,6 +372,21 @@ random_biv d s p1 p2 p3 = unsafePerformIO $
                                  r2' <- peek r2
                                  return (r1',r2')
 
+-- | draw a sample from a bivariate distribution
+random_biv_s :: RNG                -- ^ the random number generator
+            -> BivariateDist      -- ^ distribution type
+            -> Double          -- ^ parameter 1
+            -> Double          -- ^ parameter 2
+            -> Double          -- ^ parameter 3
+            -> IO (Double,Double) -- ^ result
+random_biv_s (RNG rng) d p1 p2 p3 = do
+  alloca $ \r1 ->
+    alloca $ \r2 -> do
+      withForeignPtr rng $ \r -> distribution_random_bivariate_s r (fromei d) p1 p2 p3 r1 r2
+      r1' <- peek r1
+      r2' <- peek r2
+      return (r1',r2')
+  
 -- | draw a sample from a bivariate distribution
 random_biv_v :: BivariateDist  -- ^ distribution type
              -> Int             -- ^ random seed
@@ -345,6 +417,7 @@ density_biv d f p1 p2 p3 (x,y) = unsafePerformIO $ do
                                                  else distribution_dist_bivariate (fromei f') (fromei d') x' y' p1' p2' p3'
 
 foreign import ccall "distribution-aux.h random_biv" distribution_random_bivariate :: CInt -> CInt -> Double -> Double -> Double -> Ptr Double -> Ptr Double -> IO ()
+foreign import ccall "distribution-aux.h random_biv_s" distribution_random_bivariate_s :: RNGHandle -> CInt -> Double -> Double -> Double -> Ptr Double -> Ptr Double -> IO ()
 foreign import ccall "distribution-aux.h random_biv_v" distribution_random_bivariate_v :: CInt -> CInt -> Double -> Double -> Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
 foreign import ccall "distribution-aux.h random_biv_dist" distribution_dist_bivariate :: CInt -> CInt -> Double -> Double -> Double -> Double -> Double -> IO Double
 
