@@ -12,6 +12,9 @@
 --
 -- <http://www.gnu.org/software/gsl/manual/>
 --
+-- FOr information on how to set environment variables to set RNG type and seed
+-- see <http://www.gnu.org/software/gsl/manual/html_node/Random-number-environment-variables.html#Random-number-environment-variables>
+--
 -----------------------------------------------------------------------------
 
 module Numeric.GSL.Distribution.Common (

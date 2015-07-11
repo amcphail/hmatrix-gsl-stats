@@ -30,6 +30,7 @@ module Numeric.GSL.Distribution.Discrete (
 import Data.Packed.Vector
 --import Data.Packed.Matrix hiding(toLists)
 import Data.Packed.Development
+import Data.Word
 
 --import Numeric.LinearAlgebra.Linear
 
@@ -83,7 +84,7 @@ fromei x = fromIntegral (fromEnum x) :: CInt
 random_1p :: OneParamDist    -- ^ distribution type
           -> Int             -- ^ random seed
           -> Double          -- ^ parameter
-          -> Int             -- ^ result
+          -> Word32          -- ^ result
 random_1p d s p = unsafePerformIO $
                   alloca $ \r -> do
                       check "random1p" $ distribution_discrete_one_param (fromIntegral s) (fromei d) p r
@@ -94,7 +95,7 @@ random_1p d s p = unsafePerformIO $
 random_1p_s :: RNG           -- ^ RNG
             -> OneParamDist    -- ^ distribution type
             -> Double          -- ^ parameter
-            -> IO Int          -- ^ result
+            -> IO Word32       -- ^ result
 random_1p_s (RNG rng) d p = do
   alloca $ \r ->
     withForeignPtr rng $ \rg -> do
@@ -107,7 +108,7 @@ random_1p_v :: OneParamDist    -- ^ distribution type
             -> Int             -- ^ random seed
             -> Double          -- ^ parameter
             -> Int             -- ^ number of samples
-            -> Vector Int      -- ^ result
+            -> Vector Word32   -- ^ result
 random_1p_v d s p l = unsafePerformIO $ do
    r <- createVector l
    app1 (distribution_discrete_one_param_v (fromIntegral s) (fromei d) p) vec r "random_1p_v"
@@ -117,7 +118,7 @@ random_1p_v d s p l = unsafePerformIO $ do
 density_1p :: OneParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
                 -> Double         -- ^ parameter
-                -> Int            -- ^ value
+                -> Word32         -- ^ value
                 -> Double         -- ^ result
 density_1p d f p x = unsafePerformIO $ do
                                        case d of 
@@ -144,8 +145,8 @@ foreign import ccall "distribution-aux.h discrete1_dist" distribution_dist_one_p
 random_2p :: TwoParamDist    -- ^ distribution type
           -> Int             -- ^ random seed
           -> Double          -- ^ parameter 1
-          -> Int             -- ^ parameter 2
-          -> Int             -- ^ result
+          -> Word32          -- ^ parameter 2
+          -> Word32          -- ^ result
 random_2p d s p1 p2  = unsafePerformIO $
                        alloca $ \r -> do
                            check "random2p" $ distribution_discrete_two_param (fromIntegral s) (fromei d) p1 (fromIntegral p2) r
@@ -156,8 +157,8 @@ random_2p d s p1 p2  = unsafePerformIO $
 random_2p_s :: RNG           -- ^ RNG
             -> TwoParamDist    -- ^ distribution type
             -> Double          -- ^ parameter 1
-            -> Int             -- ^ parameter 2
-            -> IO Int          -- ^ result
+            -> Word32          -- ^ parameter 2
+            -> IO Word32       -- ^ result
 random_2p_s (RNG rng) d p1 p2  = alloca $ \r ->
   withForeignPtr rng $ \rg -> do
     check "random2p_s" $ distribution_discrete_two_param_s rg (fromei d) p1 (fromIntegral p2) r
@@ -168,9 +169,9 @@ random_2p_s (RNG rng) d p1 p2  = alloca $ \r ->
 random_2p_v :: TwoParamDist    -- ^ distribution type
             -> Int             -- ^ random seed
             -> Double          -- ^ parameter 1
-            -> Int             -- ^ parameter 2
+            -> Word32          -- ^ parameter 2
             -> Int             -- ^ number of samples
-            -> Vector Int      -- ^ result
+            -> Vector Word32   -- ^ result
 random_2p_v d s p1 p2 l = unsafePerformIO $ do
    r <- createVector l
    app1 (distribution_discrete_two_param_v (fromIntegral s) (fromei d) p1 (fromIntegral p2)) vec r "random_2p_v"
@@ -180,8 +181,8 @@ random_2p_v d s p1 p2 l = unsafePerformIO $ do
 density_2p :: TwoParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
                 -> Double         -- ^ parameter 1
-                -> Int            -- ^ parameter 2
-                -> Int            -- ^ value
+                -> Word32         -- ^ parameter 2
+                -> Word32         -- ^ value
                 -> Double         -- ^ result
 density_2p d f p1 p2 x = unsafePerformIO $ do
                           case d of
@@ -200,10 +201,10 @@ foreign import ccall "distribution-aux.h discrete2_dist" distribution_dist_two_p
 -- | draw a sample from a three parameter distribution
 random_3p :: ThreeParamDist  -- ^ distribution type
           -> Int             -- ^ random seed
-          -> Int             -- ^ parameter 1
-          -> Int             -- ^ parameter 2
-          -> Int             -- ^ parameter 3
-          -> Int          -- ^ result
+          -> Word32          -- ^ parameter 1
+          -> Word32          -- ^ parameter 2
+          -> Word32          -- ^ parameter 3
+          -> Word32          -- ^ result
 random_3p d s p1 p2 p3 = unsafePerformIO $
                          alloca $ \r -> do
                                  check "random_3p" $ distribution_discrete_three_param (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3) r
@@ -213,10 +214,10 @@ random_3p d s p1 p2 p3 = unsafePerformIO $
 -- | draw a sample from a three parameter distribution
 random_3p_s :: RNG           -- ^ RNG
             -> ThreeParamDist  -- ^ distribution type
-            -> Int             -- ^ parameter 1
-            -> Int             -- ^ parameter 2
-            -> Int             -- ^ parameter 3
-            -> IO Int          -- ^ result
+            -> Word32          -- ^ parameter 1
+            -> Word32          -- ^ parameter 2
+            -> Word32          -- ^ parameter 3
+            -> IO Word32       -- ^ result
 random_3p_s (RNG rng) d p1 p2 p3 = alloca $ \r ->
   withForeignPtr rng $ \rg -> do
     check "random_3p_s" $ distribution_discrete_three_param_s rg (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3) r
@@ -226,11 +227,11 @@ random_3p_s (RNG rng) d p1 p2 p3 = alloca $ \r ->
 -- | draw samples from a three parameter distribution
 random_3p_v :: ThreeParamDist  -- ^ distribution type
             -> Int             -- ^ random seed
-            -> Int             -- ^ parameter 1
-            -> Int             -- ^ parameter 2
-            -> Int             -- ^ parameter 3
+            -> Word32          -- ^ parameter 1
+            -> Word32          -- ^ parameter 2
+            -> Word32          -- ^ parameter 3
             -> Int             -- ^ number of samples
-            -> Vector Int      -- ^ result
+            -> Vector Word32   -- ^ result
 random_3p_v d s p1 p2 p3 l = unsafePerformIO $ do
    r <- createVector l
    app1 (distribution_discrete_three_param_v (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3)) vec r "random_3p_v"
@@ -239,10 +240,10 @@ random_3p_v d s p1 p2 p3 l = unsafePerformIO $ do
 -- | probability of a variate take a value outside the argument
 density_3p :: ThreeParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
-                -> Int            -- ^ parameter 1
-                -> Int            -- ^ parameter 2
-                -> Int            -- ^ parameter 3
-                -> Int            -- ^ value
+                -> Word32         -- ^ parameter 1
+                -> Word32         -- ^ parameter 2
+                -> Word32         -- ^ parameter 3
+                -> Word32         -- ^ value
                 -> Double         -- ^ result
 density_3p d f p1 p2 p3 x = unsafePerformIO $ do
                             case d of
@@ -261,30 +262,30 @@ foreign import ccall "distribution-aux.h discrete3_dist" distribution_dist_three
 -- | draw a sample from a multi-parameter distribution
 random_mp :: MultiParamDist  -- ^ distribution type
           -> Int             -- ^ random seed
-          -> Int             -- ^ trials
+          -> Word32          -- ^ trials
           -> Vector Double   -- ^ parameters
-          -> Vector Int      -- ^ result
+          -> Vector Word32   -- ^ result
 random_mp d s t p = unsafePerformIO $ do
                     r <- createVector $ dim p
                     app2 (distribution_discrete_multi_param (fromIntegral s) (fromei d) (fromIntegral t)) vec p vec r "random_mp"
-                    return $ mapVector (\x -> (fromIntegral x) :: Int) r
+                    return $ mapVector (\x -> (fromIntegral x) :: Word32) r
 
 -- | draw a sample from a multi-parameter distribution
 random_mp_s :: RNG           -- ^ RNG
             -> MultiParamDist  -- ^ distribution type
-            -> Int             -- ^ trials
+            -> Word32          -- ^ trials
             -> Vector Double   -- ^ parameters
-            -> IO (Vector Int) -- ^ result
+            -> IO (Vector Word32) -- ^ result
 random_mp_s (RNG rng) d t p = withForeignPtr rng $ \rg -> do
   r <- createVector $ dim p
   app2 (distribution_discrete_multi_param_s rg (fromei d) (fromIntegral t)) vec p vec r "random_mp_s"
-  return $ mapVector (\x -> (fromIntegral x) :: Int) r
+  return $ mapVector (\x -> (fromIntegral x) :: Word32) r
 
 -- | probability of a variate take a value outside the argument
 density_mp :: MultiParamDist   -- ^ density type
                 -> DistFunc       -- ^ distribution function type
                 -> Vector Double  -- ^ parameters
-                -> Vector Int     -- ^ values
+                -> Vector Word32  -- ^ values
                 -> Double         -- ^ result
 density_mp d f p q = unsafePerformIO $ do
                      case d of
