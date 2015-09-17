@@ -94,3 +94,6 @@
 
 0.4.1:
 		changed discrete distribution return from Int to Word32 to match C uint
+
+0.4.1.1:
+		remove Config.hs and configure
