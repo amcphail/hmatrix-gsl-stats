@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Sort
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -19,19 +19,23 @@ module Numeric.GSL.Sort (
                          ) where
 
 
-import Data.Packed.Vector
-import Data.Packed.Development
+import Numeric.LinearAlgebra.Data
+import Numeric.LinearAlgebra.Devel
 
 import Foreign
 import Foreign.C.Types(CInt(..))
 
 import System.IO.Unsafe(unsafePerformIO)
 
+infixl 1 #
+a # b = applyRaw a b
+{-# INLINE (#) #-}
+
 -- | sort the elements of a vector into ascending order
 sort :: Vector Double -> Vector Double
 sort v = unsafePerformIO $ do
-         r <- createVector (dim v)
-         app2 sort_sort vec v vec r "sort"
+         r <- createVector (size v)
+         sort_sort # v # r #| "sort"
          return r
 
 foreign import ccall "sort-aux.h sort" sort_sort :: CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt

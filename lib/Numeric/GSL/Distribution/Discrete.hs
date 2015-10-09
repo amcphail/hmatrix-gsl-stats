@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeFamilies #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Distribution.Discrete
@@ -27,12 +28,10 @@ module Numeric.GSL.Distribution.Discrete (
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
---import Data.Packed.Matrix hiding(toLists)
-import Data.Packed.Development
-import Data.Word
+import Numeric.LinearAlgebra.Data
+import Numeric.LinearAlgebra.Devel
 
---import Numeric.LinearAlgebra.Linear
+import Data.Vector.Storable
 
 --import Control.Monad(when)
 
@@ -48,12 +47,18 @@ import Foreign.C.Types(CInt(..),CUInt(..))
 --import GHC.Base
 --import GHC.IOBase
 
---import Prelude hiding(reverse)
+import Prelude hiding(map)
 
 import Numeric.GSL.Distribution.Common
 import Numeric.GSL.Distribution.Internal
 
 import System.IO.Unsafe(unsafePerformIO)
+
+-----------------------------------------------------------------------------
+
+infixl 1 #
+a # b = applyRaw a b
+{-# INLINE (#) #-}
 
 -----------------------------------------------------------------------------
 
@@ -111,8 +116,8 @@ random_1p_v :: OneParamDist    -- ^ distribution type
             -> Vector Word32   -- ^ result
 random_1p_v d s p l = unsafePerformIO $ do
    r <- createVector l
-   app1 (distribution_discrete_one_param_v (fromIntegral s) (fromei d) p) vec r "random_1p_v"
-   return (mapVector fromIntegral r)
+   (distribution_discrete_one_param_v (fromIntegral s) (fromei d) p) # r #| "random_1p_v"
+   return (map fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
 density_1p :: OneParamDist   -- ^ density type
@@ -174,8 +179,8 @@ random_2p_v :: TwoParamDist    -- ^ distribution type
             -> Vector Word32   -- ^ result
 random_2p_v d s p1 p2 l = unsafePerformIO $ do
    r <- createVector l
-   app1 (distribution_discrete_two_param_v (fromIntegral s) (fromei d) p1 (fromIntegral p2)) vec r "random_2p_v"
-   return (mapVector fromIntegral r)
+   (distribution_discrete_two_param_v (fromIntegral s) (fromei d) p1 (fromIntegral p2)) # r #| "random_2p_v"
+   return (map fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
 density_2p :: TwoParamDist   -- ^ density type
@@ -234,8 +239,8 @@ random_3p_v :: ThreeParamDist  -- ^ distribution type
             -> Vector Word32   -- ^ result
 random_3p_v d s p1 p2 p3 l = unsafePerformIO $ do
    r <- createVector l
-   app1 (distribution_discrete_three_param_v (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3)) vec r "random_3p_v"
-   return (mapVector fromIntegral r)
+   (distribution_discrete_three_param_v (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3)) # r #| "random_3p_v"
+   return (map fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
 density_3p :: ThreeParamDist   -- ^ density type
@@ -266,9 +271,9 @@ random_mp :: MultiParamDist  -- ^ distribution type
           -> Vector Double   -- ^ parameters
           -> Vector Word32   -- ^ result
 random_mp d s t p = unsafePerformIO $ do
-                    r <- createVector $ dim p
-                    app2 (distribution_discrete_multi_param (fromIntegral s) (fromei d) (fromIntegral t)) vec p vec r "random_mp"
-                    return $ mapVector (\x -> (fromIntegral x) :: Word32) r
+                    r <- createVector $ size p
+                    (distribution_discrete_multi_param (fromIntegral s) (fromei d) (fromIntegral t)) # p # r #| "random_mp"
+                    return $ map (\x -> (fromIntegral x) :: Word32) r
 
 -- | draw a sample from a multi-parameter distribution
 random_mp_s :: RNG           -- ^ RNG
@@ -277,9 +282,9 @@ random_mp_s :: RNG           -- ^ RNG
             -> Vector Double   -- ^ parameters
             -> IO (Vector Word32) -- ^ result
 random_mp_s (RNG rng) d t p = withForeignPtr rng $ \rg -> do
-  r <- createVector $ dim p
-  app2 (distribution_discrete_multi_param_s rg (fromei d) (fromIntegral t)) vec p vec r "random_mp_s"
-  return $ mapVector (\x -> (fromIntegral x) :: Word32) r
+  r <- createVector $ size p
+  (distribution_discrete_multi_param_s rg (fromei d) (fromIntegral t)) # p # r #| "random_mp_s"
+  return $ map (\x -> (fromIntegral x) :: Word32) r
 
 -- | probability of a variate take a value outside the argument
 density_mp :: MultiParamDist   -- ^ density type
@@ -293,7 +298,7 @@ density_mp d f p q = unsafePerformIO $ do
     where density_only f' d' p' q' = if f' /= Density
                                               then error "distribution has no CDF"
                                               else alloca $ \r -> do
-                                                                  app2 (distribution_dist_multi_param (fromei f') (fromei d') r) vec p' vec (mapVector (\x -> (fromIntegral x) :: CUInt) q') "density_mp"
+                                                                  (distribution_dist_multi_param (fromei f') (fromei d') r) # p' # (map (\x -> (fromIntegral x) :: CUInt) q') #| "density_mp"
                                                                   r' <- peek r
                                                                   return r'
 

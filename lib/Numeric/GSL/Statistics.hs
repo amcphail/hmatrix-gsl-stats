@@ -40,10 +40,8 @@ module Numeric.GSL.Statistics (
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
---import Data.Packed(Container(..))
-
-import Data.Packed.Development
+import Numeric.LinearAlgebra.Data
+import Numeric.LinearAlgebra.Devel
 
 --import Numeric.GSL.Vector
 --import Numeric.LinearAlgebra.Instances()
@@ -57,19 +55,25 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
+infixl 1 #
+a # b = applyRaw a b
+{-# INLINE (#) #-}
+
+-----------------------------------------------------------------------------
+
 type PD = Ptr Double
 
 -----------------------------------------------------------------------------
 
 getD1 f s v = unsafePerformIO $ do
                 alloca $ \r -> do
-                   app1 (f r) vec v s
+                   (f r) # v #| s
                    r' <- peek r
                    return r'
 
 getD2 f s v w = unsafePerformIO $ do
                    alloca $ \r -> do
-                      app2 (f r) vec v vec w s
+                      (f r) # v # w #| s
                       r' <- peek r
                       return r'
 

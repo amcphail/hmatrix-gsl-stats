@@ -47,12 +47,11 @@ module Numeric.GSL.Histogram (
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
---import Data.Packed.Matrix hiding(toLists)
-import Data.Packed.Development
+import Numeric.LinearAlgebra.Data hiding(find)
+import Numeric.LinearAlgebra.Devel
 
 --import Numeric.LinearAlgebra.Algorithms hiding (multiply)
-import Numeric.LinearAlgebra hiding (multiply,add,divide,scale,find)
+--import Numeric.LinearAlgebra hiding (multiply,add,divide,scale,find)
 --import Numeric.Container 
 
 --import Control.Monad
@@ -78,6 +77,12 @@ import System.IO.Unsafe(unsafePerformIO)
 -----------------------------------------------------------------------------
 
 data Hist
+infixl 1 #
+a # b = applyRaw a b
+{-# INLINE (#) #-}
+
+-----------------------------------------------------------------------------
+
 type HistHandle = Ptr Hist
 -- | A histogram structure
 data Histogram = H { hdim :: {-# UNPACK #-} !Int -- ^ number of bins
@@ -128,10 +133,10 @@ foreign import ccall "gsl-histogram.h &gsl_histogram_free" histogram_free :: Fun
 -- | create a histogram with n bins from ranges (x0->x1),(x1->x2)..(xn->xn+1)
 fromRangesIO :: Vector Double -> IO Histogram
 fromRangesIO v = do
-               let sz = fromIntegral $ dim v - 1
+               let sz = fromIntegral $ size v - 1
                h <- histogram_new sz
                h' <- newForeignPtr histogram_free h
-               app1 (\d p -> withForeignPtr h' $ \f -> histogram_set_ranges f (fromIntegral d) p) vec v "fromRanges"
+               (\d p -> withForeignPtr h' $ \f -> histogram_set_ranges f (fromIntegral d) p) # v #| "fromRanges"
                return $ H (fromIntegral sz) h'
 
 -- | create a histogram with n bins and lower and upper limits
@@ -193,7 +198,7 @@ middle = fromList . map (\(x1,x2) -> (x1 + x2)/2) . vectorToTuples
 fromVectors :: Vector Double -> Vector Double -> Histogram
 fromVectors r b = unsafePerformIO $ do
                   h@(H _ h') <- fromRangesIO r
-                  app2 (\rs r' bs b' -> withForeignPtr h' $ \h'' -> histogram_from_vectors h'' rs r' bs b') vec r vec b "fromVectors"
+                  (\rs r' bs b' -> withForeignPtr h' $ \h'' -> histogram_from_vectors h'' rs r' bs b') # r # b #| "fromVectors"
                   return h
                   
 foreign import ccall "gsl-histogram.h from_vectors" histogram_from_vectors :: HistHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
@@ -203,7 +208,7 @@ toVectors :: Histogram -> (Vector Double,Vector Double) -- ^ (ranges,bins)
 toVectors (H b h) = unsafePerformIO $ do
                     rs <- createVector (b+1)
                     bs <- createVector b
-                    app2 (\s1 p1 s2 p2 -> withForeignPtr h $ \f -> histogram_to_vectors f s1 p1 s2 p2) vec rs vec bs "toVectors"
+                    (\s1 p1 s2 p2 -> withForeignPtr h $ \f -> histogram_to_vectors f s1 p1 s2 p2) # rs # bs #| "toVectors"
                     return (rs,bs)
 
 foreign import ccall "gsl-histogram.h to_vectors" histogram_to_vectors :: HistHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
@@ -260,7 +265,7 @@ incrementListIO (H _ h) xs = withForeignPtr h (\f -> mapM_ (histogram_increment 
 -- | add 1.0 to the correct bin for each element of the vector, fails silently if the value is outside the range
 incrementVectorIO :: Histogram -> Vector Double -> IO ()
 incrementVectorIO (H _ h) v = do
-                             app1 (\s p -> withForeignPtr h (\f -> histogram_increment_vector f s p)) vec v "incrementVector"
+                             (\s p -> withForeignPtr h (\f -> histogram_increment_vector f s p)) # v #| "incrementVector"
                              return ()
 
 -- | adds the weight (second Double) to the bin appropriate for the value (first Double)
@@ -276,7 +281,7 @@ accumulateListIO (H _ h) xs = do
 -- | add the weight (second vector) to the correct bin for each element of the first vector, fails silently if the value is outside the range
 accumulateVectorIO :: Histogram -> Vector Double -> Vector Double -> IO ()
 accumulateVectorIO (H _ h) v w = do
-                                app2 (\s1 p1 s2 p2 -> withForeignPtr h (\f -> histogram_accumulate_vector f s1 p1 s2 p2)) vec v vec w "accumulateVector"
+                                (\s1 p1 s2 p2 -> withForeignPtr h (\f -> histogram_accumulate_vector f s1 p1 s2 p2)) # v # w #| "accumulateVector"
                                 return ()
 
 -- | returns the contents of the i-th bin
@@ -347,8 +352,8 @@ probability h x = let Just x' = find h x in (getBin h x') / (sum h)
 
 -- | find the number of occurences for each element of the input vector
 count :: Histogram -> Vector Double -> Vector Double
-count h = mapVector (\x -> let Just x' = find h x
-                           in getBin h x')
+count h = cmap (\x -> let Just x' = find h x
+                      in getBin h x')
 
 -- | find the probability of occurring for each element of the input vector
 prob :: Histogram -> Vector Double -> Vector Double

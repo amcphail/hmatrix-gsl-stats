@@ -33,9 +33,11 @@ module Numeric.GSL.Permutation (
 
 -----------------------------------------------------------------------------
 
-import Data.Packed.Vector
---import Data.Packed.Matrix hiding(toLists)
-import Data.Packed.Development
+import Numeric.LinearAlgebra.Data hiding(find,size)
+import Numeric.LinearAlgebra.Devel
+
+--import Data.Vector.Storable hiding(Vector,mapM_,reverse)
+--import Data.Vector.Storable hiding(Vector,sum,find,mapM_)
 
 --import Numeric.LinearAlgebra.Linear
 
@@ -56,6 +58,12 @@ import Foreign.C.String(newCString)
 import Prelude hiding(reverse)
 
 import System.IO.Unsafe(unsafePerformIO)
+
+-----------------------------------------------------------------------------
+
+infixl 1 #
+a # b = applyRaw a b
+{-# INLINE (#) #-}
 
 -----------------------------------------------------------------------------
 
@@ -226,14 +234,14 @@ foreign import ccall "gsl-permutation.h gsl_permutation_prev" permutation_prev :
 permute :: Permutation -> Vector Double -> Vector Double
 permute (P n p) v = unsafePerformIO $ do
                     r <- createVector n
-                    app2 (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute p' vs vp rs rp) vec v vec r "permute"
+                    (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute p' vs vp rs rp) # v # r #| "permute"
                     return r
 
 -- | apply the inverse permutation to a vector
 inverse_permute :: Permutation -> Vector Double -> Vector Double
 inverse_permute (P n p) v = unsafePerformIO $ do
                     r <- createVector n
-                    app2 (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute_inverse p' vs vp rs rp) vec v vec r "permute"
+                    (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute_inverse p' vs vp rs rp) # v # r #| "permute"
                     return r
 
 -- | multiply two permutations, P = PA * PB
