@@ -103,3 +103,7 @@
 
 0.4.1.3:
 		lower vector package bound
+
+0.4.1.4:
+		set upper bound for hmatrix so it complies 
+		    (changes in hmatrix 0.18)
