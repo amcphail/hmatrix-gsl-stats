@@ -16,7 +16,7 @@
 -----------------------------------------------------------------------------
 
 module Numeric.GSL.Statistics (
-{-                               mean
+                               mean
                               , variance,variance_m,variance_pm
                               , stddev,stddev_m,stddev_pm
                               , tot_sumsq,tot_sumsq_m
@@ -37,7 +37,7 @@ module Numeric.GSL.Statistics (
                               , correlation
                               --
                               , median, quantile
--}                ) where
+                ) where
 
 -----------------------------------------------------------------------------
 

@@ -107,3 +107,9 @@
 0.4.1.4:
 		set upper bound for hmatrix so it complies 
 		    (changes in hmatrix 0.18)
+
+0.4.1.5:
+		update for hmatrix 0.18
+
+0.4.1.6:
+		uncommented statistics functions (woops!)
