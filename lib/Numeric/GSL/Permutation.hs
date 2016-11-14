@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Permutation
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -61,8 +61,8 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
-infixl 1 #
-a # b = applyRaw a b
+infixr 1 #
+a # b = apply a b
 {-# INLINE (#) #-}
 
 -----------------------------------------------------------------------------
@@ -234,14 +234,14 @@ foreign import ccall "gsl-permutation.h gsl_permutation_prev" permutation_prev :
 permute :: Permutation -> Vector Double -> Vector Double
 permute (P n p) v = unsafePerformIO $ do
                     r <- createVector n
-                    (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute p' vs vp rs rp) # v # r #| "permute"
+                    (v # r # id) (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute p' vs vp rs rp) #| "permute"
                     return r
 
 -- | apply the inverse permutation to a vector
 inverse_permute :: Permutation -> Vector Double -> Vector Double
 inverse_permute (P n p) v = unsafePerformIO $ do
                     r <- createVector n
-                    (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute_inverse p' vs vp rs rp) # v # r #| "permute"
+                    (v # r #id) (\vs vp rs rp -> withForeignPtr p $ \p' -> permutation_permute_inverse p' vs vp rs rp) #| "permute"
                     return r
 
 -- | multiply two permutations, P = PA * PB

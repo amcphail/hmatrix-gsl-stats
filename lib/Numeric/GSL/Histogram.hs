@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Histogram
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -77,8 +77,8 @@ import System.IO.Unsafe(unsafePerformIO)
 -----------------------------------------------------------------------------
 
 data Hist
-infixl 1 #
-a # b = applyRaw a b
+infixr 1 #
+a # b = apply a b
 {-# INLINE (#) #-}
 
 -----------------------------------------------------------------------------
@@ -136,7 +136,7 @@ fromRangesIO v = do
                let sz = fromIntegral $ size v - 1
                h <- histogram_new sz
                h' <- newForeignPtr histogram_free h
-               (\d p -> withForeignPtr h' $ \f -> histogram_set_ranges f (fromIntegral d) p) # v #| "fromRanges"
+               (v # id) (\d p -> withForeignPtr h' $ \f -> histogram_set_ranges f (fromIntegral d) p) #| "fromRanges"
                return $ H (fromIntegral sz) h'
 
 -- | create a histogram with n bins and lower and upper limits
@@ -198,7 +198,7 @@ middle = fromList . map (\(x1,x2) -> (x1 + x2)/2) . vectorToTuples
 fromVectors :: Vector Double -> Vector Double -> Histogram
 fromVectors r b = unsafePerformIO $ do
                   h@(H _ h') <- fromRangesIO r
-                  (\rs r' bs b' -> withForeignPtr h' $ \h'' -> histogram_from_vectors h'' rs r' bs b') # r # b #| "fromVectors"
+                  (r # b # id) (\rs r' bs b' -> withForeignPtr h' $ \h'' -> histogram_from_vectors h'' rs r' bs b') #| "fromVectors"
                   return h
                   
 foreign import ccall "gsl-histogram.h from_vectors" histogram_from_vectors :: HistHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
@@ -208,7 +208,7 @@ toVectors :: Histogram -> (Vector Double,Vector Double) -- ^ (ranges,bins)
 toVectors (H b h) = unsafePerformIO $ do
                     rs <- createVector (b+1)
                     bs <- createVector b
-                    (\s1 p1 s2 p2 -> withForeignPtr h $ \f -> histogram_to_vectors f s1 p1 s2 p2) # rs # bs #| "toVectors"
+                    (rs # bs # id) (\s1 p1 s2 p2 -> withForeignPtr h $ \f -> histogram_to_vectors f s1 p1 s2 p2) #| "toVectors"
                     return (rs,bs)
 
 foreign import ccall "gsl-histogram.h to_vectors" histogram_to_vectors :: HistHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
@@ -265,7 +265,7 @@ incrementListIO (H _ h) xs = withForeignPtr h (\f -> mapM_ (histogram_increment 
 -- | add 1.0 to the correct bin for each element of the vector, fails silently if the value is outside the range
 incrementVectorIO :: Histogram -> Vector Double -> IO ()
 incrementVectorIO (H _ h) v = do
-                             (\s p -> withForeignPtr h (\f -> histogram_increment_vector f s p)) # v #| "incrementVector"
+                             (v # id) (\s p -> withForeignPtr h (\f -> histogram_increment_vector f s p)) #| "incrementVector"
                              return ()
 
 -- | adds the weight (second Double) to the bin appropriate for the value (first Double)
@@ -281,7 +281,7 @@ accumulateListIO (H _ h) xs = do
 -- | add the weight (second vector) to the correct bin for each element of the first vector, fails silently if the value is outside the range
 accumulateVectorIO :: Histogram -> Vector Double -> Vector Double -> IO ()
 accumulateVectorIO (H _ h) v w = do
-                                (\s1 p1 s2 p2 -> withForeignPtr h (\f -> histogram_accumulate_vector f s1 p1 s2 p2)) # v # w #| "accumulateVector"
+                                (v # w # id) (\s1 p1 s2 p2 -> withForeignPtr h (\f -> histogram_accumulate_vector f s1 p1 s2 p2)) #| "accumulateVector"
                                 return ()
 
 -- | returns the contents of the i-th bin

@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Distribution.Discrete
--- Copyright   :  (c) A. V. H. McPhail 2010, 2015
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -56,7 +56,7 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
-infixl 1 #
+infixr 1 #
 a # b = applyRaw a b
 {-# INLINE (#) #-}
 
@@ -116,7 +116,7 @@ random_1p_v :: OneParamDist    -- ^ distribution type
             -> Vector Word32   -- ^ result
 random_1p_v d s p l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_discrete_one_param_v (fromIntegral s) (fromei d) p) # r #| "random_1p_v"
+   (r # id) (distribution_discrete_one_param_v (fromIntegral s) (fromei d) p) #| "random_1p_v"
    return (map fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
@@ -179,7 +179,7 @@ random_2p_v :: TwoParamDist    -- ^ distribution type
             -> Vector Word32   -- ^ result
 random_2p_v d s p1 p2 l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_discrete_two_param_v (fromIntegral s) (fromei d) p1 (fromIntegral p2)) # r #| "random_2p_v"
+   (r # id) (distribution_discrete_two_param_v (fromIntegral s) (fromei d) p1 (fromIntegral p2)) #| "random_2p_v"
    return (map fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
@@ -239,7 +239,7 @@ random_3p_v :: ThreeParamDist  -- ^ distribution type
             -> Vector Word32   -- ^ result
 random_3p_v d s p1 p2 p3 l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_discrete_three_param_v (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3)) # r #| "random_3p_v"
+   (r # id) (distribution_discrete_three_param_v (fromIntegral s) (fromei d) (fromIntegral p1) (fromIntegral p2) (fromIntegral p3)) #| "random_3p_v"
    return (map fromIntegral r)
 
 -- | probability of a variate take a value outside the argument
@@ -272,7 +272,7 @@ random_mp :: MultiParamDist  -- ^ distribution type
           -> Vector Word32   -- ^ result
 random_mp d s t p = unsafePerformIO $ do
                     r <- createVector $ size p
-                    (distribution_discrete_multi_param (fromIntegral s) (fromei d) (fromIntegral t)) # p # r #| "random_mp"
+                    (p # r # id) (distribution_discrete_multi_param (fromIntegral s) (fromei d) (fromIntegral t)) #| "random_mp"
                     return $ map (\x -> (fromIntegral x) :: Word32) r
 
 -- | draw a sample from a multi-parameter distribution
@@ -283,7 +283,7 @@ random_mp_s :: RNG           -- ^ RNG
             -> IO (Vector Word32) -- ^ result
 random_mp_s (RNG rng) d t p = withForeignPtr rng $ \rg -> do
   r <- createVector $ size p
-  (distribution_discrete_multi_param_s rg (fromei d) (fromIntegral t)) # p # r #| "random_mp_s"
+  (p # r # id) (distribution_discrete_multi_param_s rg (fromei d) (fromIntegral t)) #| "random_mp_s"
   return $ map (\x -> (fromIntegral x) :: Word32) r
 
 -- | probability of a variate take a value outside the argument
@@ -296,11 +296,11 @@ density_mp d f p q = unsafePerformIO $ do
                      case d of
                             Multinomial -> density_only f d p q
     where density_only f' d' p' q' = if f' /= Density
-                                              then error "distribution has no CDF"
-                                              else alloca $ \r -> do
-                                                                  (distribution_dist_multi_param (fromei f') (fromei d') r) # p' # (map (\x -> (fromIntegral x) :: CUInt) q') #| "density_mp"
-                                                                  r' <- peek r
-                                                                  return r'
+                                     then error "distribution has no CDF"
+                                     else alloca $ \r -> do
+                                                         (p' # (map (\x -> (fromIntegral x) :: CUInt) q') # id) (distribution_dist_multi_param (fromei f') (fromei d') r) #| "density_mp"
+                                                         r' <- peek r
+                                                         return r'
 
 foreign import ccall "distribution-aux.h discrete_mp" distribution_discrete_multi_param :: CInt -> CInt -> CUInt -> CInt -> Ptr Double -> CInt -> Ptr CUInt -> IO CInt
 foreign import ccall "distribution-aux.h discrete_mp_s" distribution_discrete_multi_param_s :: RNGHandle -> CInt -> CUInt -> CInt -> Ptr Double -> CInt -> Ptr CUInt -> IO CInt

@@ -1,7 +1,8 @@
+{-# LANGUAGE FlexibleContexts #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Statistics
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -15,7 +16,7 @@
 -----------------------------------------------------------------------------
 
 module Numeric.GSL.Statistics (
-                               mean
+{-                               mean
                               , variance,variance_m,variance_pm
                               , stddev,stddev_m,stddev_pm
                               , tot_sumsq,tot_sumsq_m
@@ -36,7 +37,7 @@ module Numeric.GSL.Statistics (
                               , correlation
                               --
                               , median, quantile
-                ) where
+-}                ) where
 
 -----------------------------------------------------------------------------
 
@@ -55,8 +56,8 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
-infixl 1 #
-a # b = applyRaw a b
+infixr 1 #
+a # b = apply a b
 {-# INLINE (#) #-}
 
 -----------------------------------------------------------------------------
@@ -65,15 +66,17 @@ type PD = Ptr Double
 
 -----------------------------------------------------------------------------
 
+getD1 :: (Ptr Double -> CInt -> Ptr Double -> IO CInt) -> String -> Vector Double -> Double
 getD1 f s v = unsafePerformIO $ do
                 alloca $ \r -> do
-                   (f r) # v #| s
+                   (v # id) (f r) #| s
                    r' <- peek r
                    return r'
 
+getD2 :: (Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt) -> String -> Vector Double -> Vector Double -> Double
 getD2 f s v w = unsafePerformIO $ do
                    alloca $ \r -> do
-                      (f r) # v # w #| s
+                      (v # w # id) (f r) #| s
                       r' <- peek r
                       return r'
 
@@ -312,4 +315,5 @@ foreign import ccall "statistics-aux.h median" statistics_median :: PD -> CInt -
 foreign import ccall "statistics-aux.h quantile" statistics_quantile :: Double -> PD -> CInt -> PD -> IO CInt
 
 -----------------------------------------------------------------------------
+
 

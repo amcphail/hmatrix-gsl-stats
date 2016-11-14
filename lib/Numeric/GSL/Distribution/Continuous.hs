@@ -1,8 +1,9 @@
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Distribution.Continuous
--- Copyright   :  (c) A. V. H. McPhail 2010, 2015
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -60,7 +61,7 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
-infixl 1 #
+infixr 1 #
 a # b = applyRaw a b
 {-# INLINE (#) #-}
 
@@ -128,7 +129,7 @@ random_0p_v :: ZeroParamDist    -- ^ distribution type
             -> Vector Double   -- ^ result
 random_0p_v  d s l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_random_zero_param_v (fromIntegral s) (fromei d)) # r #| "random_0p_v"
+   (r # id) (distribution_random_zero_param_v (fromIntegral s) (fromei d)) #| "random_0p_v"
    return r
 
 -- | probability of a variate take a value outside the argument
@@ -179,7 +180,7 @@ random_1p_v :: OneParamDist    -- ^ distribution type
             -> Vector Double   -- ^ result
 random_1p_v d s p l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_random_one_param_v (fromIntegral s) (fromei d) p) # r #| "random_1p_v"
+   (r # id) (distribution_random_one_param_v (fromIntegral s) (fromei d) p) #| "random_1p_v"
    return r
 
 -- | probability of a variate take a value outside the argument
@@ -229,7 +230,7 @@ random_2p_v :: TwoParamDist    -- ^ distribution type
             -> Vector Double   -- ^ result
 random_2p_v d s p1 p2 l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_random_two_param_v (fromIntegral s) (fromei d) p1 p2) # r #| "random_2p_v"
+   (r # id) (distribution_random_two_param_v (fromIntegral s) (fromei d) p1 p2) #| "random_2p_v"
    return r
 
 -- | probability of a variate take a value outside the argument
@@ -295,7 +296,7 @@ random_3p_v :: ThreeParamDist  -- ^ distribution type
             -> Vector Double   -- ^ result
 random_3p_v d s p1 p2 p3 l = unsafePerformIO $ do
    r <- createVector l
-   (distribution_random_three_param_v (fromIntegral s) (fromei d) p1 p2 p3) # r #| "random_3p_v"
+   (r # id) (distribution_random_three_param_v (fromIntegral s) (fromei d) p1 p2 p3) #| "random_3p_v"
    return r
 
 -- | probability of a variate take a value outside the argument
@@ -325,7 +326,7 @@ random_mp :: MultiParamDist  -- ^ distribution type
           -> Vector Double   -- ^ result
 random_mp d s p = unsafePerformIO $ do
                   r <- createVector $ size p
-                  (distribution_random_multi_param (fromIntegral s) (fromei d)) # p # r #| "random_mp"
+                  (p # r # id) (distribution_random_multi_param (fromIntegral s) (fromei d)) #| "random_mp"
                   return r
 
 -- | draw a sample from a multi parameter distribution
@@ -336,7 +337,7 @@ random_mp_s :: RNG                -- ^ the random number generator
 random_mp_s (RNG rng) d p = do
   let l = size p
   r <- createVector l
-  withForeignPtr rng $ \rg -> (distribution_random_multi_param_s rg (fromei d)) # p # r #| "random_mp_s"
+  withForeignPtr rng $ \rg -> (p # r # id) (distribution_random_multi_param_s rg (fromei d)) #| "random_mp_s"
   return r
   
 -- | probability of a variate take a value outside the argument
@@ -351,7 +352,7 @@ density_mp d f p q = unsafePerformIO $ do
     where density_only f' d' p' q' = if f' /= Density
                                               then error "distribution has no CDF"
                                               else alloca $ \r -> do
-                                                                  (distribution_dist_multi_param (fromei f') (fromei d') r) # p' # q' #| "density_mp"
+                                                                  (p' # q' # id) (distribution_dist_multi_param (fromei f') (fromei d') r) #| "density_mp"
                                                                   r' <- peek r
                                                                   return r'
 
@@ -402,7 +403,7 @@ random_biv_v :: BivariateDist  -- ^ distribution type
 random_biv_v d s p1 p2 p3 l = unsafePerformIO $ do
    r1 <- createVector l
    r2 <- createVector l
-   (distribution_random_bivariate_v (fromIntegral s) (fromei d) p1 p2 p3) # r1 # r2 #| "random_biv_v"
+   (r1 # r2 # id) (distribution_random_bivariate_v (fromIntegral s) (fromei d) p1 p2 p3) #| "random_biv_v"
    return (r1,r2)
 
 -- | probability of a variate take a value outside the argument
@@ -433,7 +434,7 @@ spherical_vector :: Int           -- ^ seed
                  -> Vector Double -- result
 spherical_vector s vs = unsafePerformIO $ do
                         r <- createVector vs
-                        (distribution_spherical_vector (fromIntegral s)) # r #| "spherical_vector"
+                        (r # id) (distribution_spherical_vector (fromIntegral s)) #| "spherical_vector"
                         return r
 
 foreign import ccall "distribution-aux.h spherical_vector" distribution_spherical_vector :: CInt -> CInt -> Ptr Double -> IO CInt

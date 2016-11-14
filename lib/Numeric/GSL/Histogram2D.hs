@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Histogram2D
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -83,7 +83,7 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
-infixl 1 #
+infixr 1 #
 a # b = applyRaw a b
 {-# INLINE (#) #-}
 
@@ -160,7 +160,7 @@ fromRangesIO v w = do
                    let sy = fromIntegral $ size w - 1
                    h <- histogram2d_new sx sy
                    h' <- newForeignPtr histogram2d_free h
-                   (\xs xp ys yp -> withForeignPtr h' (\f -> histogram2d_set_ranges f xp xs yp ys)) # v # w #| "fromRanges"
+                   (v # w # id) (\xs xp ys yp -> withForeignPtr h' (\f -> histogram2d_set_ranges f xp xs yp ys)) #| "fromRanges"
                    return $ H (fromIntegral sx) (fromIntegral sy) h'
 
 -- | create a histogram with n bins and lower and upper limits
@@ -221,7 +221,7 @@ toMatrix (H bx by h) = unsafePerformIO $ do
                     rx <- createVector (bx+1)
                     ry <- createVector (by+1)
                     bs <- createMatrix RowMajor bx by
-                    (\s1 p1 s2 p2 sx sy p -> withForeignPtr h $ \f -> histogram_to_matrix f s1 p1 s2 p2 sx sy p) # rx # ry # bs #| "toMatrix"
+                    (rx # ry # bs # id) (\s1 p1 s2 p2 sx sy p -> withForeignPtr h $ \f -> histogram_to_matrix f s1 p1 s2 p2 sx sy p) #| "toMatrix"
                     return (rx,ry,bs)
 
 foreign import ccall "histogram-aux.h to_matrix" histogram_to_matrix :: Hist2DHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> CInt -> Ptr Double -> IO CInt
@@ -243,7 +243,7 @@ fromMatrix :: Vector Double            -- ^ x ranges
            -> Histogram2D              -- ^result
 fromMatrix x y w = unsafePerformIO $ do
                    h@(H _ _ h') <- fromRangesIO x y
-                   (\xs x' ys y' rs cs b -> withForeignPtr h' $ \h'' -> histogram_from_matrix h'' xs x' ys y' rs cs b) # x # y # (cmat w) #| "fromMatrix"
+                   (x # y # (cmat w) # id) (\xs x' ys y' rs cs b -> withForeignPtr h' $ \h'' -> histogram_from_matrix h'' xs x' ys y' rs cs b) #| "fromMatrix"
                    return h
 
 foreign import ccall "histogram-aux.h from_matrix" histogram_from_matrix :: Hist2DHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> CInt -> Ptr Double -> IO CInt
@@ -301,7 +301,7 @@ incrementIO (H _ _ h) x y = do
 -- | add 1.0 to the correct bin for each element of the vector pair, fails silently if the value is outside the range
 incrementVectorIO :: Histogram2D -> Vector Double -> Vector Double -> IO ()
 incrementVectorIO (H _ _ h) x y = do
-                                (\xs xp ys yp -> withForeignPtr h (\f -> histogram2d_increment_matrix f xs xp ys yp)) # x # y #| "incrementVector"
+                                (x # y # id) (\xs xp ys yp -> withForeignPtr h (\f -> histogram2d_increment_matrix f xs xp ys yp)) #| "incrementVector"
                                 return ()
 
 -- | add 1.0  to the correct bin for each element of the list, fails silently if the value is outside the range
@@ -317,7 +317,7 @@ accumulateIO (H _ _ h) x y w = do
 -- | add the weight (third) to the correct bin for each vector pair element, fails silently if the value is outside the range
 accumulateVectorIO :: Histogram2D -> Vector Double -> Vector Double -> Vector Double -> IO ()
 accumulateVectorIO (H _ _ h) x y w = do
-                                (\xs xp ys yp ws wp -> withForeignPtr h (\f -> histogram2d_accumulate_matrix f xs xp ys yp ws wp)) # x # y # w #| "accumulateVector"
+                                (x # y # w # id) (\xs xp ys yp ws wp -> withForeignPtr h (\f -> histogram2d_accumulate_matrix f xs xp ys yp ws wp)) #| "accumulateVector"
                                 return ()
 
 -- | add the weight (snd) to the correct bin for each (fst) element of the list, fails silently if the value is outside the range
@@ -422,7 +422,7 @@ probability h x = let Just x' = find h x in (getBin h x') / (sum h)
 count :: Histogram2D -> (Vector Double, Vector Double) -> Vector Double
 count (H _ _ h) (x,y) = unsafePerformIO $ do
                r <- createVector $ size x
-               (\xs' x' ys' y' rs' r' -> withForeignPtr h $ \h' -> histogram2d_count h' xs' x' ys' y' rs' r') # x # y # r #| "histogram2d_count"
+               (x # y # r # id) (\xs' x' ys' y' rs' r' -> withForeignPtr h $ \h' -> histogram2d_count h' xs' x' ys' y' rs' r') #| "histogram2d_count"
                return r
 
 foreign import ccall "histogram-aux.h hist2d_count" histogram2d_count :: Hist2DHandle -> CInt -> Ptr Double -> CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
@@ -435,7 +435,7 @@ prob h z = (count h z) / (scalar $ sum h)
 countPaired :: Histogram2D -> Vector (Double,Double) -> Vector Double
 countPaired (H _ _ h) x = unsafePerformIO $ do
                r <- createVector $ length x
-               (\xs' x' rs' r' -> withForeignPtr h $ \h' -> histogram2d_count_pair h' xs' x' rs' r') # x # r #| "histogram2d_count_pair"
+               (x # r # id) (\xs' x' rs' r' -> withForeignPtr h $ \h' -> histogram2d_count_pair h' xs' x' rs' r') #| "histogram2d_count_pair"
                return r
 
 foreign import ccall "histogram-aux.h hist2d_count_pair" histogram2d_count_pair :: Hist2DHandle -> CInt -> Ptr (Double,Double) -> CInt -> Ptr Double -> IO CInt

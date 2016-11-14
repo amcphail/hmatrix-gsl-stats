@@ -1,7 +1,8 @@
+{-# LANGUAGE FlexibleContexts #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Sort
--- Copyright   :  (c) A. V. H. McPhail 2010, 2015
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2015, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -27,15 +28,16 @@ import Foreign.C.Types(CInt(..))
 
 import System.IO.Unsafe(unsafePerformIO)
 
-infixl 1 #
-a # b = applyRaw a b
+infixr 1 #
+a # b = apply a b
 {-# INLINE (#) #-}
 
 -- | sort the elements of a vector into ascending order
 sort :: Vector Double -> Vector Double
 sort v = unsafePerformIO $ do
-         r <- createVector (size v)
-         sort_sort # v # r #| "sort"
-         return r
+  r <- createVector (size v)
+  (v # r # id) sort_sort #| "sort"
+  return r
 
 foreign import ccall "sort-aux.h sort" sort_sort :: CInt -> Ptr Double -> CInt -> Ptr Double -> IO CInt
+

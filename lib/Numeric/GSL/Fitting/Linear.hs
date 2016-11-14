@@ -1,7 +1,7 @@
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Numeric.GSL.Fitting.Linear
--- Copyright   :  (c) A. V. H. McPhail 2010
+-- Copyright   :  (c) A. V. H. McPhail 2010, 2016
 -- License     :  BSD3
 --
 -- Maintainer  :  haskell.vivian.mcphail <at> gmail <dot> com
@@ -45,7 +45,7 @@ import System.IO.Unsafe(unsafePerformIO)
 
 -----------------------------------------------------------------------------
 
-infixl 1 #
+infixr 1 #
 a # b = applyRaw a b
 {-# INLINE (#) #-}
 
@@ -62,7 +62,7 @@ linear x y = unsafePerformIO $ do
                        alloca $ \cov00 -> 
                            alloca $ \cov01 -> 
                                alloca $ \cov11 -> do
-                                                  (fitting_linear c0 c1 chi_sq cov00 cov01 cov11) # x # y #| "linear"
+                                                  (x # y # id) (fitting_linear c0 c1 chi_sq cov00 cov01 cov11) #| "linear"
                                                   c0' <- peek c0
                                                   c1' <- peek c1
                                                   cov00' <- peek cov00
@@ -90,7 +90,7 @@ linear_w x w y = unsafePerformIO $ do
                        alloca $ \cov00 -> 
                            alloca $ \cov01 -> 
                                alloca $ \cov11 -> do
-                                                  (fitting_linear_w c0 c1 chi_sq cov00 cov01 cov11) # x # w # y #| "linear_w"
+                                                  (x # w # y # id) (fitting_linear_w c0 c1 chi_sq cov00 cov01 cov11) #| "linear_w"
                                                   c0' <- peek c0
                                                   c1' <- peek c1
                                                   cov00' <- peek cov00
@@ -139,7 +139,7 @@ multifit x y = unsafePerformIO $ do
                cov <- createMatrix RowMajor p p
                c <- createVector p
                alloca$ \chi_sq -> do
-                   (fitting_multifit chi_sq) # (cmat x) # y # c # cov #| "multifit"
+                   (cmat x # y # c # cov # id) (fitting_multifit chi_sq) #| "multifit"
                    chi_sq' <- peek chi_sq
                    return (c,cov,chi_sq')
 
@@ -159,7 +159,7 @@ multifit_w x w y = unsafePerformIO $ do
                    cov <- createMatrix RowMajor p p
                    c <- createVector p
                    alloca$ \chi_sq -> do
-                       (fitting_multifit_w chi_sq) # (cmat x) # w # y # c # cov #| "multifit"
+                       (cmat x # w # y # c # cov # id) (fitting_multifit_w chi_sq) #| "multifit"
                        chi_sq' <- peek chi_sq
                        return (c,cov,chi_sq')
 
@@ -177,7 +177,7 @@ multifit_est :: Vector Double     -- ^ input point
 multifit_est x c cov = unsafePerformIO $ do
                        alloca $ \y ->
                            alloca $ \e -> do
-                               (fitting_multifit_est y e) # x # c # cov #| "multifit_estimate"
+                               (x # c # cov # id) (fitting_multifit_est y e) #| "multifit_estimate"
                                y' <- peek y
                                e' <- peek e
                                return (y',e')
