@@ -113,3 +113,6 @@
 
 0.4.1.6:
 		uncommented statistics functions (woops!)
+
+0.4.1.7:
+		trommler made -msse2 conditional
