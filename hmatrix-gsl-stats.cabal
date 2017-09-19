@@ -65,7 +65,10 @@ library
                               -fno-warn-orphans
                               -fno-warn-unused-binds
 
-    cc-options:         -O4 -msse2 -Wall
+    if arch(i386) || arch(x86_64)
+        cc-options:     -O4 -msse2 -Wall
+    else
+        cc-options:     -O4 -Wall
 
     if os(OSX)
         extra-lib-dirs: /opt/local/lib/
