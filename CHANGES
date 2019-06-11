@@ -116,3 +116,6 @@
 
 0.4.1.7:
 		trommler made -msse2 conditional
+
+0.4.1.8:
+		fixed segfault in some statistics functions (argument order)

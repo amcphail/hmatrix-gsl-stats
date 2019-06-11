@@ -1,8 +1,8 @@
 Name:               hmatrix-gsl-stats
-Version:            0.4.1.7
+Version:            0.4.1.8
 License:            BSD3
 License-file:       LICENSE
-Copyright:          (c) A.V.H. McPhail 2010, 2011, 2013, 2015, 2016
+Copyright:          (c) A.V.H. McPhail 2010, 2011, 2013, 2015, 2016, 2019
 Author:             Vivian McPhail
 Maintainer:         haskell.vivian.mcphail <at> gmail <dot> com
 Stability:          provisional
