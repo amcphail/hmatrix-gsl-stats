@@ -118,49 +118,49 @@ int correlation(double* r, int vs, const double* v, int ws, const double* w)
 }
 
 
-int w_mean(int ws, const double* w, double* r, int vs, const double* v)
+int w_mean(double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wmean(w,1,v,1,vs);
   return 0;
 }
 
-int w_variance(int ws, const double* w, double* r, int vs, const double* v)
+int w_variance(double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wvariance(w,1,v,1,vs);
   return 0;
 }
 
-int w_variance_m(double m, int ws, const double* w, double* r, int vs, const double* v)
+int w_variance_m(double m, double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wvariance_m(w,1,v,1,vs,m);
   return 0;
 }
 
-int w_stddev(int ws, const double* w, double* r, int vs, const double* v)
+int w_stddev(double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wsd(w,1,v,1,vs);
   return 0;
 }
 
-int w_stddev_m(double m, int ws, const double* w, double* r, int vs, const double* v)
+int w_stddev_m(double m, double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wsd_m(w,1,v,1,vs,m);
   return 0;
 }
 
-int w_tot_sumsq(int ws, const double* w, double* r, int vs, const double* v)
+int w_tot_sumsq(double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wtss(w,1,v,1,vs);
   return 0;
 }
 
-int w_tot_sumsq_m(double m, int ws, const double* w, double* r, int vs, const double* v)
+int w_tot_sumsq_m(double m, double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wtss_m(w,1,v,1,vs,m);
   return 0;
 }
 
-int w_var_with_fixed_m(double m, int ws, const double* w, double* r, int vs, const double* v)
+int w_var_with_fixed_m(double m, double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wvariance_with_fixed_mean(w,1,v,1,vs,m);
   return 0;
@@ -190,7 +190,7 @@ int w_skew(double m, int ws, const double* w, double* r, int vs, const double* v
   return 0;
 }  
 
-int w_skew_m_sd(double m, double sd, int ws, const double* w, double* r, int vs, const double* v)
+int w_skew_m_sd(double m, double sd, double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wskew_m_sd(w,1,v,1,vs,m,sd);
   return 0;
@@ -202,7 +202,7 @@ int w_kurtosis(double m, int ws, const double* w, double* r, int vs, const doubl
   return 0;
 }  
 
-int w_kurtosis_m_sd(double m, double sd, int ws, const double* w, double* r, int vs, const double* v)
+int w_kurtosis_m_sd(double m, double sd, double* r, int ws, const double* w, int vs, const double* v)
 {
   (*r) = gsl_stats_wkurtosis_m_sd(w,1,v,1,vs,m,sd);
   return 0;
